@@ -1,0 +1,18 @@
+{
+  "name": "cuanto_cuesta",
+  "version": "1.0.0",
+  "description": "Programa enfocado en los calculos de costos para Emprendedores",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Control de Producción</title>
+<!-- Fuente Modak desde Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Modak&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --violet: #7e57c2;
+    --black: #000000;
+    --white: #ffffff;
+    --gray-light: #dcdcdc;
+    --gray-strong: #999999;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background: var(--gray-light);
+    color: var(--black);
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-family: 'Modak', cursive;
+    color: var(--violet);
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    background: var(--white);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px var(--gray-strong);
+  }
+  form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  label {
+    font-weight: bold;
+    color: var(--violet);
+  }
+  input[type="text"],
+  input[type="number"],
+  select {
+    padding: 8px;
+    border: 1px solid var(--gray-strong);
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+  button {
+    background: var(--violet);
+    color: var(--white);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background: #5e3a9a;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  thead {
+    background: var(--violet);
+    color: var(--white);
+  }
+  th, td {
+    padding: 10px;
+    border: 1px solid var(--gray-strong);
+    text-align: center;
+  }
+  tfoot td {
+    font-weight: bold;
+    background: var(--gray-light);
+  }
+  .summary {
+    font-size: 1.2rem;
+    color: var(--black);
+    text-align: right;
+  }
+  /* Para que los labels del formulario estén arriba cuando se ponen en columnas */
+  form label {
+    grid-column: span 1;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Control de Producción</h1>
+
+  <div class="container">
+    <form>
+      <label for="product">Producto</label>
+      <input type="text" id="product" name="product" placeholder="Nombre del producto" required />
+      
+      <label for="quantity">Cantidad</label>
+      <input type="number" id="quantity" name="quantity" min="0" step="any" placeholder="0" required />
+      
+      <label for="unit">Unidad</label>
+      <select id="unit" name="unit" required>
+        <option value="kg">kg</option>
+        <option value="g">g</option>
+      </select>
+      
+      <label for="unit-cost">Costo Unitario</label>
+      <input type="number" id="unit-cost" name="unit-cost" min="0" step="0.01" placeholder="0.00" required />
+      
+      <button type="submit">Agregar</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Unidad</th>
+          <th>Costo Unitario</th>
+          <th>Costo Total</th>
+        </tr>
+      </thead>
+      <tbody id="product-list">
+        <!-- Aquí se agregarían los productos -->
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4">Costo Total Producción</td>
+          <td id="total-cost">$0.00</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div>
+      <label for="expected-output"><strong>Cantidad Esperada de Producción:</strong></label>
+      <input type="number" id="expected-output" name="expected-output" min="1" placeholder="0" />
+    </div>
+
+    <div class="summary" id="unit-cost-summary">
+      Costo Unitario Final: $0.00
+    </div>
+  </div>
+
+</body>
+</html>

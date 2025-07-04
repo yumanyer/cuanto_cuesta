@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Cuánto Cuesta?</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome CDN para iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3 রাহুলwga5mG+5UqLd7j3mJc/rL3zGj2t8q3U5dE2bJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    /* Estilos personalizados que Tailwind no cubre fácilmente o para override */
+    body {
+      font-family: 'Open Sans', sans-serif; /* Ejemplo de fuente, necesitarías importarla */
+      background-color: #f3f4f6; /* Un gris claro de fondo */
+      color: #333;
+    }
+    .sidebar {
+      background-color: #6d28d9; /* Morado principal */
+      color: white;
+      min-height: 100vh;
+      width: 250px; /* Ancho fijo para la barra lateral */
+      transition: all 0.3s ease;
+    }
+    .sidebar ul li a {
+      color: white;
+      padding: 1rem 1.5rem;
+      display: block;
+      transition: background-color 0.2s ease;
+    }
+    .sidebar ul li a:hover {
+      background-color: #8b5cf6; /* Morado más claro al pasar el ratón */
+    }
+    .sidebar ul li a.active {
+      background-color: #a78bfa; /* Morado más claro para el elemento activo */
+      font-weight: bold;
+    }
+    .sidebar .logo {
+      display: flex;
+      align-items: center;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #8b5cf6;
+    }
+    .sidebar .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-left: 0.5rem;
+    }
+    .content-area {
+      margin-left: 250px; /* Espacio para la sidebar */
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+    /* Clases para ocultar/mostrar secciones */
+    .content-section {
+      display: none;
+    }
+    .content-section.active {
+      display: block;
+    }
+
+    /* Estilos del modal */
+    .modal {
+      display: none; /* Oculto por defecto */
+      position: fixed;
+      z-index: 50; /* Asegura que esté por encima de todo */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5); /* Fondo oscuro semi-transparente */
+      backdrop-filter: blur(5px); /* Efecto blur */
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto; /* Centrado verticalmente */
+      padding: 20px;
+      border-radius: 8px;
+      width: 80%; /* Ancho del contenido del modal */
+      max-width: 600px; /* Ancho máximo */
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .close-button:hover,
+    .close-button:focus {
+      color: #333;
+      text-decoration: none;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5eb; /* Gris claro para bordes */
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: #6d28d9; /* Morado al enfocar */
+      box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.3);
+    }
+    .table-auto th, .table-auto td {
+      padding: 0.75rem;
+      text-align: left;
+    }
+    .table-auto thead th {
+      background-color: #e9d5ff; /* Morado más claro para cabeceras */
+      font-weight: bold;
+      color: #6d28d9;
+    }
+    .table-auto tbody tr:nth-child(even) {
+      background-color: #f3e8ff; /* Morado muy claro para filas pares */
+    }
+    .action-buttons button {
+      margin-right: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+    .action-buttons .btn-edit {
+      background-color: #facc15; /* Amarillo para editar */
+      color: #333;
+    }
+    .action-buttons .btn-edit:hover {
+      background-color: #eab308;
+    }
+    .action-buttons .btn-delete {
+      background-color: #ef4444; /* Rojo para eliminar */
+      color: white;
+    }
+    .action-buttons .btn-delete:hover {
+      background-color: #dc2626;
+    }
+    /* Estilos para el formulario de añadir producto dentro de la lista */
+    .add-product-form {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); /* 4 columnas */
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .add-product-form div {
+        display: flex;
+        flex-direction: column;
+    }
+     .add-product-form label {
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+        color: #6b7280;
+     }
+     .add-product-form input, .add-product-form select {
+        padding: 0.5rem;
+        border: 1px solid #d1d5eb;
+        border-radius: 4px;
+     }
+     .add-product-form .btn-add {
+        align-self: flex-end;
+        padding: 0.5rem 1rem;
+        background-color: #6d28d9;
+        color: white;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+     }
+     .add-product-form .btn-add:hover {
+        background-color: #8b5cf6;
+     }
+     .add-product-form .btn-add:disabled {
+        background-color: #d1d5eb;
+        cursor: not-allowed;
+     }
+
+     /* Estilos para el formulario de añadir ingrediente en el modal */
+     .ingredient-add-form {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        align-items: flex-end; /* Alinear elementos en la parte inferior */
+     }
+     .ingredient-add-form > div {
+        flex-grow: 1; /* Permite que los divs ocupen espacio disponible */
+        display: flex;
+        flex-direction: column;
+     }
+      .ingredient-add-form > div:last-child {
+        flex-grow: 0; /* El botón no debe crecer */
+      }
+      .ingredient-add-form select, .ingredient-add-form input {
+        width: auto; /* Permite que el width se ajuste al contenido o al flex */
+      }
+       .ingredient-add-form .btn-add-ingredient {
+          padding: 0.5rem 1rem;
+          background-color: #6d28d9;
+          color: white;
+          border-radius: 4px;
+          transition: background-color 0.2s ease;
+       }
+        .ingredient-add-form .btn-add-ingredient:hover {
+            background-color: #8b5cf6;
+        }
+        .ingredient-add-form #ingredient-unit {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 0.5rem; /* Un poco de espacio */
+        }
+
+      /* Estilos para el resumen de costos en el modal */
+      .recipe-summary {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+        text-align: right;
+      }
+      .recipe-summary p {
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+      }
+      .recipe-summary span {
+        color: #6d28d9;
+        font-weight: bold;
+      }
+
+      /* Estilos para botones primarios y secundarios */
+      .btn-primary {
+          background-color: #6d28d9;
+          color: white;
+          padding: 0.75rem 1.5rem;
+          border-radius: 4px;
+          transition: background-color 0.2s ease;
+      }
+      .btn-primary:hover {
+          background-color: #8b5cf6;
+      }
+      .btn-secondary {
+          background-color: #e9d5ff;
+          color: #6d28d9;
+          padding: 0.75rem 1.5rem;
+          border-radius: 4px;
+          transition: background-color 0.2s ease, color 0.2s ease;
+      }
+      .btn-secondary:hover {
+          background-color: #d8b4fe;
+          color: #6d28d9;
+      }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <nav id="sidebar" class="sidebar fixed top-0 left-0 z-40">
+    <div class="logo">
+      <i class="fas fa-dollar-sign text-2xl"></i>
+      <h1 class="font-bold">¿Cuánto Cuesta?</h1>
+    </div>
+    <ul class="space-y-2">
+      <li>
+        <a href="#" id="nav-lista-productos" class="flex items-center px-4 py-3 text-white hover:bg-purple-600 active">
+          <i class="fas fa-box mr-3"></i>
+          <span>Lista de Productos</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" id="nav-recetario" class="flex items-center px-4 py-3 text-white hover:bg-purple-600">
+          <i class="fas fa-utensils mr-3"></i>
+          <span>Recetario</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" id="nav-calculadora" class="flex items-center px-4 py-3 text-white hover:bg-purple-600">
+          <i class="fas fa-calculator mr-3"></i>
+          <span>Calculadora Unidades</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Contenido Principal -->
+  <main id="content-area" class="content-area">
+
+    <!-- Sección: Lista de Productos -->
+    <section id="lista-productos-section" class="content-section active">
+      <h2 class="text-3xl font-bold mb-6">Lista de Productos</h2>
+
+      <!-- Formulario para agregar un nuevo producto -->
+      <div id="add-product-form-container" class="add-product-form mb-6">
+        <div>
+          <label for="product-name">Nombre del Producto</label>
+          <input type="text" id="product-name" placeholder="Ej: Harina 1kg">
+        </div>
+        <div>
+          <label for="product-quantity">Cantidad</label>
+          <input type="number" id="product-quantity" placeholder="Ej: 1000">
+        </div>
+        <div>
+          <label for="product-unit">Unidad</label>
+          <select id="product-unit">
+            <option value="unidad">Unidad (pieza)</option>
+            <option value="kg">Kilo (kg)</option>
+            <option value="gr">Gramos (gr)</option>
+            <option value="lt">Litro (lt)</option>
+            <option value="ml">Mililitro (ml)</option>
+            <option value="paquete">Paquete</option>
+            <option value="taza">Taza</option>
+            <option value="cucharada">Cucharada</option>
+            <option value="cucharadita">Cucharadita</option>
+          </select>
+        </div>
+        <div>
+          <label for="product-price">Precio de Compra ($)</label>
+          <input type="number" id="product-price" placeholder="Ej: 5000">
+        </div>
+        <button id="btn-add-product" class="btn-primary btn-add">Agregar Producto</button>
+      </div>
+
+      <!-- Tabla de productos -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full table-auto bg-white shadow-md rounded-lg">
+          <thead>
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="product-table-body" class="bg-white divide-y divide-gray-200">
+            <!-- Los productos se agregarán aquí con JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Sección: Recetario -->
+    <section id="recetario-section" class="content-section">
+      <h2 class="text-3xl font-bold mb-6">Recetario</h2>
+      <p class="text-lg mb-4">Crea tus recetas combinando los ingredientes que tienes.</p>
+      <button id="btn-open-recetario-modal" class="btn-primary">Crear Nueva Receta</button>
+
+      <!-- Aquí podrías listar las recetas guardadas en el futuro -->
+      <div class="mt-6">
+        <h3 class="text-xl font-semibold mb-4">Recetas Guardadas</h3>
+        <p class="text-gray-600">Aún no hay recetas creadas. ¡Haz clic en "Crear Nueva Receta"!</p>
+      </div>
+    </section>
+
+    <!-- Sección: Calculadora de Unidades -->
+    <section id="calculadora-section" class="content-section">
+      <h2 class="text-3xl font-bold mb-6">Calculadora de Unidades</h2>
+      <div class="bg-white p-6 rounded-lg shadow-md max-w-sm">
+        <div class="grid grid-cols-1 gap-4">
+          <div>
+            <label for="calc-quantity" class="block text-sm font-medium text-gray-700">Cantidad</label>
+            <input type="number" id="calc-quantity" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
+          </div>
+          <div>
+            <label for="calc-unit-from" class="block text-sm font-medium text-gray-700">Convertir desde</label>
+            <select id="calc-unit-from" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
+              <option value="unidad">Unidad (pieza)</option>
+              <option value="kg">Kilo (kg)</option>
+              <option value="gr">Gramos (gr)</option>
+              <option value="lt">Litro (lt)</option>
+              <option value="ml">Mililitro (ml)</option>
+              <!-- Agrega más unidades según sea necesario -->
+            </select>
+          </div>
+          <div>
+            <label for="calc-unit-to" class="block text-sm font-medium text-gray-700">Convertir a</label>
+            <select id="calc-unit-to" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
+              <option value="unidad">Unidad (pieza)</option>
+              <option value="kg">Kilo (kg)</option>
+              <option value="gr">Gramos (gr)</option>
+              <option value="lt">Litro (lt)</option>
+              <option value="ml">Mililitro (ml)</option>
+              <!-- Agrega más unidades según sea necesario -->
+            </select>
+          </div>
+          <button id="btn-convert-units" class="btn-primary">Convertir</button>
+          <div class="mt-4 text-center">
+            <p class="text-lg font-semibold">Resultado:</p>
+            <p id="conversion-result" class="text-2xl text-purple-700">-</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal del Recetario -->
+  <div id="recetario-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button">×</span>
+      <h2 class="text-2xl font-bold mb-5">Crear Nueva Receta</h2>
+
+      <div class="recipe-form">
+        <div class="grid grid-cols-1 gap-4 mb-4">
+          <div>
+            <label for="recipe-name" class="block text-sm font-medium text-gray-700">Nombre de la Receta</label>
+            <input type="text" id="recipe-name" placeholder="Ej: Pastel de Chocolate">
+          </div>
+          <div>
+            <label for="recipe-yield" class="block text-sm font-medium text-gray-700">Rendimiento por Tanda (Unidades)</label>
+            <input type="number" id="recipe-yield" value="1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
+          </div>
+        </div>
+
+        <h3 class="text-lg font-semibold mb-3 mt-5">Ingredientes para la Receta</h3>
+        <div class="ingredient-add-form mb-4">
+          <div class="flex-grow">
+            <label for="ingredient-select" class="block text-sm font-medium text-gray-700">Seleccionar Ingrediente</label>
+            <select id="ingredient-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
+              <option value="">-- Elige un ingrediente --</option>
+              <!-- Las opciones se llenarán dinámicamente con JavaScript -->
+            </select>
+          </div>
+          <div class="flex-grow">
+             <label for="ingredient-quantity" class="block text-sm font-medium text-gray-700">Cantidad</label>
+             <input type="number" id="ingredient-quantity" placeholder="Ej: 250" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm">
+          </div>
+           <div class="flex flex-col justify-end">
+              <span id="ingredient-unit" class="text-sm text-gray-600"></span> <!-- Unidad se mostrará aquí -->
+           </div>
+          <button id="btn-add-ingredient" class="btn-secondary px-4 py-2">Añadir</button>
+        </div>
+
+        <table class="min-w-full table-auto bg-white shadow-md rounded-lg mt-4">
+          <thead>
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ingrediente</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Costo Unitario</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Costo Total</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="recipe-ingredients-body" class="bg-white divide-y divide-gray-200">
+            <!-- Ingredientes de la receta se agregarán aquí -->
+          </tbody>
+        </table>
+
+        <div class="recipe-summary">
+          <p>Costo Total de Producción: <span id="total-production-cost">$0.00</span></p>
+          <p>Costo Unitario Final: <span id="final-unit-cost">$0.00</span></p>
+        </div>
+
+        <div class="flex justify-end mt-6">
+          <button id="btn-save-recipe" class="btn-primary mr-2">Guardar Receta</button>
+          <button id="btn-cancel-recipe" class="btn-secondary">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script >
+
+    document.addEventListener('DOMContentLoaded', () => {
+  // --- Elementos del DOM ---
+  const navLinks = document.querySelectorAll('.sidebar ul li a');
+  const contentSections = document.querySelectorAll('.content-section');
+  const modal = document.getElementById('recetario-modal');
+  const btnOpenModal = document.getElementById('btn-open-recetario-modal');
+  const btnCloseModal = modal.querySelector('.close-button');
+  const btnSaveRecipe = document.getElementById('btn-save-recipe');
+  const btnCancelRecipe = document.getElementById('btn-cancel-recipe');
+
+  // Formularios
+  const addProductFormContainer = document.getElementById('add-product-form-container');
+  const productNameInput = document.getElementById('product-name');
+  const productQuantityInput = document.getElementById('product-quantity');
+  const productUnitSelect = document.getElementById('product-unit');
+  const productPriceInput = document.getElementById('product-price');
+  const btnAddProduct = document.getElementById('btn-add-product');
+  const productTableBody = document.getElementById('product-table-body');
+
+  const recipeNameInput = document.getElementById('recipe-name');
+  const recipeYieldInput = document.getElementById('recipe-yield');
+  const ingredientSelect = document.getElementById('ingredient-select');
+  const ingredientQuantityInput = document.getElementById('ingredient-quantity');
+  const ingredientUnitSpan = document.getElementById('ingredient-unit');
+  const btnAddIngredient = document.getElementById('btn-add-ingredient');
+  const recipeIngredientsBody = document.getElementById('recipe-ingredients-body');
+  const totalProductionCostSpan = document.getElementById('total-production-cost');
+  const finalUnitCostSpan = document.getElementById('final-unit-cost');
+
+  const calcQuantityInput = document.getElementById('calc-quantity');
+  const calcUnitFromSelect = document.getElementById('calc-unit-from');
+  const calcUnitToSelect = document.getElementById('calc-unit-to');
+  const btnConvertUnits = document.getElementById('btn-convert-units');
+  const conversionResultP = document.getElementById('conversion-result');
+
+  // --- Datos de Ejemplo (simulando una base de datos) ---
+  let products = [
+    { id: 1, name: "Harina de Trigo (1kg)", quantity: 1000, unit: "gr", price: 5000 },
+    { id: 2, name: "Azúcar Refinada (1kg)", quantity: 1000, unit: "gr", price: 4500 },
+    { id: 3, name: "Huevos (Docena)", quantity: 12, unit: "unidad", price: 6200 },
+    { id: 4, name: "Leche Entera (1L)", quantity: 1, unit: "lt", price: 3500 },
+    { id: 5, name: "Mantequilla (250gr)", quantity: 250, unit: "gr", price: 7000 }
+  ];
+
+  let recipes = []; // Almacenará las recetas creadas
+
+  // --- Funciones de Navegación ---
+  function showSection(sectionId) {
+    contentSections.forEach(section => {
+      section.classList.remove('active');
+    });
+    document.getElementById(`${sectionId}-section`).classList.add('active');
+
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.id === `nav-${sectionId}`) {
+        link.classList.add('active');
+      }
+    });
+  }
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const sectionId = link.id.replace('nav-', '');
+      showSection(sectionId);
+    });
+  });
+
+  // --- Funciones de Lista de Productos ---
+  function renderProductsTable() {
+    productTableBody.innerHTML = '';
+    products.forEach(product => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap">${product.name}</td>
+        <td class="px-6 py-4 whitespace-nowrap">${product.quantity}</td>
+        <td class="px-6 py-4 whitespace-nowrap">${product.unit}</td>
+        <td class="px-6 py-4 whitespace-nowrap">$${product.price.toLocaleString()}</td>
+        <td class="px-6 py-4 whitespace-nowrap action-buttons">
+          <button class="btn-edit" data-id="${product.id}"><i class="fas fa-edit"></i></button>
+          <button class="btn-delete" data-id="${product.id}"><i class="fas fa-trash-alt"></i></button>
+        </td>
+      `;
+      productTableBody.appendChild(row);
+    });
+    // Añadir listeners a los botones de acción después de renderizar
+    addProductActionListeners();
+  }
+
+  function addProductActionListeners() {
+    // Botones de editar
+    productTableBody.querySelectorAll('.btn-edit').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const productId = parseInt(e.target.closest('button').dataset.id);
+        // Aquí iría la lógica para editar el producto (ej: abrir modal de edición)
+        alert(`Editar producto con ID: ${productId}`);
+      });
+    });
+
+    // Botones de eliminar
+    productTableBody.querySelectorAll('.btn-delete').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const productId = parseInt(e.target.closest('button').dataset.id);
+        if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+          products = products.filter(p => p.id !== productId);
+          renderProductsTable(); // Volver a renderizar la tabla
+        }
+      });
+    });
+  }
+
+  btnAddProduct.addEventListener('click', () => {
+    const name = productNameInput.value.trim();
+    const quantity = parseFloat(productQuantityInput.value);
+    const unit = productUnitSelect.value;
+    const price = parseFloat(productPriceInput.value);
+
+    if (name && !isNaN(quantity) && quantity > 0 && !isNaN(price) && price >= 0) {
+      const newProduct = {
+        id: Date.now(), // ID simple basado en tiempo
+        name: name,
+        quantity: quantity,
+        unit: unit,
+        price: price
+      };
+      products.push(newProduct);
+      renderProductsTable();
+
+      // Limpiar formulario
+      productNameInput.value = '';
+      productQuantityInput.value = '';
+      productUnitSelect.value = 'unidad';
+      productPriceInput.value = '';
+    } else {
+      alert('Por favor, completa todos los campos correctamente.');
+    }
+  });
+
+  // --- Funciones del Recetario (Modal) ---
+  function populateIngredientSelect() {
+    ingredientSelect.innerHTML = '<option value="">-- Elige un ingrediente --</option>'; // Limpiar opciones
+    products.forEach(product => {
+      const option = document.createElement('option');
+      option.value = product.id; // Guardamos el ID del producto
+      option.textContent = product.name;
+      ingredientSelect.appendChild(option);
+    });
+  }
+
+  function updateIngredientUnitDisplay() {
+    const selectedProductId = parseInt(ingredientSelect.value);
+    if (!isNaN(selectedProductId)) {
+      const selectedProduct = products.find(p => p.id === selectedProductId);
+      if (selectedProduct) {
+        ingredientUnitSpan.textContent = `(Uds: ${selectedProduct.unit})`;
+      }
+    } else {
+      ingredientUnitSpan.textContent = '';
+    }
+  }
+
+  function renderRecipeIngredientsTable() {
+    recipeIngredientsBody.innerHTML = '';
+    let totalCost = 0;
+    recipes.forEach((recipe, recipeIndex) => {
+      recipe.ingredients.forEach((item, itemIndex) => {
+        const product = products.find(p => p.id === item.productId);
+        if (product) {
+          const itemCost = item.quantity * product.price; // Simplificado: precio del producto se usa como costo unitario
+          totalCost += itemCost;
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">${product.name}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${item.quantity}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${product.unit}</td>
+            <td class="px-6 py-4 whitespace-nowrap">$${product.price.toLocaleString()}</td>
+            <td class="px-6 py-4 whitespace-nowrap">$${itemCost.toLocaleString()}</td>
+            <td class="px-6 py-4 whitespace-nowrap action-buttons">
+              <button class="btn-delete" data-recipe-index="${recipeIndex}" data-item-index="${itemIndex}"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          `;
+          recipeIngredientsBody.appendChild(row);
+        }
+      });
+    });
+    totalProductionCostSpan.textContent = `$${totalCost.toLocaleString()}`;
+
+    const yieldValue = parseFloat(recipeYieldInput.value);
+    if (!isNaN(yieldValue) && yieldValue > 0) {
+      const finalUnitCost = totalCost / yieldValue;
+      finalUnitCostSpan.textContent = `$${finalUnitCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+    } else {
+      finalUnitCostSpan.textContent = '$0.00';
+    }
+
+    // Añadir listeners a los botones de eliminar de ingredientes
+    recipeIngredientsBody.querySelectorAll('.btn-delete').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const recipeIndex = parseInt(e.target.closest('button').dataset.recipeIndex);
+        const itemIndex = parseInt(e.target.closest('button').dataset.itemIndex);
+
+        if (recipeIndex !== undefined && itemIndex !== undefined) {
+          // Asumiendo que solo tenemos una receta activa en el modal a la vez
+          const currentRecipe = recipes.find(r => r.id === parseInt(modal.dataset.currentRecipeId)); // Necesitaríamos manejar el ID de la receta actual
+          if(currentRecipe && currentRecipe.ingredients){
+            currentRecipe.ingredients.splice(itemIndex, 1);
+            renderRecipeIngredientsTable(); // Re-renderizar la tabla de ingredientes
+          }
+        }
+      });
+    });
+  }
+
+  btnAddIngredient.addEventListener('click', () => {
+    const selectedProductId = parseInt(ingredientSelect.value);
+    const quantity = parseFloat(ingredientQuantityInput.value);
+
+    if (!isNaN(selectedProductId) && !isNaN(quantity) && quantity > 0) {
+      // Buscamos el producto para obtener su información
+      const product = products.find(p => p.id === selectedProductId);
+      if (product) {
+        // Si es una receta nueva o estamos editando una existente
+        // Por ahora, vamos a simular una "receta temporal" en el modal.
+        // En una app real, esto se manejaría mejor.
+        let currentRecipe = recipes.find(r => r.id === parseInt(modal.dataset.currentRecipeId));
+
+        if (!currentRecipe) {
+           // Creamos una receta temporal si no existe
+           const tempRecipeId = Date.now(); // ID temporal
+           currentRecipe = {
+             id: tempRecipeId,
+             name: recipeNameInput.value.trim() || `Receta Temp ${tempRecipeId}`,
+             yield: parseInt(recipeYieldInput.value) || 1,
+             ingredients: []
+           };
+           recipes.push(currentRecipe); // Añadirla a nuestro array de recetas
+           modal.dataset.currentRecipeId = tempRecipeId; // Guardamos el ID en el modal para referencia
+        }
+
+        // Añadir el ingrediente a la receta temporal
+        currentRecipe.ingredients.push({
+          productId: selectedProductId,
+          quantity: quantity,
+          // unit: product.unit // No es estrictamente necesario aquí, ya lo tenemos del producto
+        });
+
+        renderRecipeIngredientsTable(); // Actualizar la tabla de ingredientes en el modal
+
+        // Limpiar campos del ingrediente
+        ingredientSelect.value = '';
+        ingredientQuantityInput.value = '';
+        ingredientUnitSpan.textContent = '';
+      } else {
+        alert('Producto no encontrado.');
+      }
+    } else {
+      alert('Por favor, selecciona un ingrediente y una cantidad válida.');
+    }
+  });
+
+  btnSaveRecipe.addEventListener('click', () => {
+    const recipeName = recipeNameInput.value.trim();
+    const yieldValue = parseInt(recipeYieldInput.value);
+    const currentRecipeId = parseInt(modal.dataset.currentRecipeId);
+    const existingRecipeIndex = recipes.findIndex(r => r.id === currentRecipeId);
+
+    if (!recipeName || isNaN(yieldValue) || yieldValue <= 0) {
+      alert('Por favor, ingresa un nombre de receta y un rendimiento válido.');
+      return;
+    }
+
+    if (existingRecipeIndex !== -1) {
+      // Actualizar la receta existente
+      recipes[existingRecipeIndex].name = recipeName;
+      recipes[existingRecipeIndex].yield = yieldValue;
+    } else {
+      // Si el modal se abrió para crear una nueva receta, y no se añadió ningún ingrediente aún
+      // aseguramos que tenga un ID válido
+      const newRecipe = {
+        id: Date.now(),
+        name: recipeName,
+        yield: yieldValue,
+        ingredients: [] // Inicialmente vacía si no se añadió nada
+      };
+      recipes.push(newRecipe);
+      // Si se añadieron ingredientes, ya estarán en `currentRecipe.ingredients` y `recipes`
+    }
+
+    alert(`Receta "${recipeName}" guardada con éxito.`);
+    closeRecipeModal();
+    // Aquí podrías renderizar la lista de recetas guardadas
+  });
+
+  btnCancelRecipe.addEventListener('click', () => {
+    closeRecipeModal();
+  });
+
+  function openRecipeModal() {
+    modal.style.display = 'block';
+    // Asegurarse de que el modal esté listo para una nueva receta
+    recipeNameInput.value = '';
+    recipeYieldInput.value = '1';
+    ingredientSelect.value = '';
+    ingredientQuantityInput.value = '';
+    ingredientUnitSpan.textContent = '';
+    recipeIngredientsBody.innerHTML = '';
+    totalProductionCostSpan.textContent = '$0.00';
+    finalUnitCostSpan.textContent = '$0.00';
+    delete modal.dataset.currentRecipeId; // Limpiar cualquier ID de receta anterior
+
+    populateIngredientSelect(); // Llenar el dropdown de ingredientes
+  }
+
+  function closeRecipeModal() {
+    modal.style.display = 'none';
+  }
+
+  btnOpenModal.addEventListener('click', openRecipeModal);
+  btnCloseModal.addEventListener('click', closeRecipeModal);
+
+  // Cerrar modal si se hace clic fuera del contenido
+  window.addEventListener('click', (event) => {
+    if (event.target === modal) {
+      closeRecipeModal();
+    }
+  });
+
+  // Actualizar la unidad mostrada cuando cambia la selección de ingrediente
+  ingredientSelect.addEventListener('change', updateIngredientUnitDisplay);
+  recipeYieldInput.addEventListener('input', renderRecipeIngredientsTable); // Recalcular al cambiar rendimiento
+
+  // --- Funciones de Calculadora de Unidades ---
+  btnConvertUnits.addEventListener('click', () => {
+    const quantity = parseFloat(calcQuantityInput.value);
+    const unitFrom = calcUnitFromSelect.value;
+    const unitTo = calcUnitToSelect.value;
+
+    if (isNaN(quantity) || quantity <= 0 || unitFrom === '' || unitTo === '') {
+      alert('Por favor, ingresa una cantidad válida y selecciona ambas unidades.');
+      return;
+    }
+
+    // Aquí iría la lógica de conversión de unidades.
+    // Por simplicidad, vamos a simular una conversión: gr <-> kg y ml <-> lt.
+    // Esto es un ejemplo básico y necesitaría ser expandido para ser completo.
+
+    let result = '-';
+    let convertedQuantity = quantity;
+
+    // Conversión Gr <-> Kg
+    if (unitFrom === 'gr' && unitTo === 'kg') {
+      convertedQuantity = quantity / 1000;
+      result = `${convertedQuantity.toLocaleString(undefined, { minimumFractionDigits: 2 })} kg`;
+    } else if (unitFrom === 'kg' && unitTo === 'gr') {
+      convertedQuantity = quantity * 1000;
+      result = `${convertedQuantity.toLocaleString(undefined, { minimumFractionDigits: 2 })} gr`;
+    }
+    // Conversión Ml <-> Lt
+    else if (unitFrom === 'ml' && unitTo === 'lt') {
+      convertedQuantity = quantity / 1000;
+      result = `${convertedQuantity.toLocaleString(undefined, { minimumFractionDigits: 2 })} lt`;
+    } else if (unitFrom === 'lt' && unitTo === 'ml') {
+      convertedQuantity = quantity * 1000;
+      result = `${convertedQuantity.toLocaleString(undefined, { minimumFractionDigits: 2 })} ml`;
+    }
+    // Si las unidades son iguales o no hay conversión definida
+    else if (unitFrom === unitTo) {
+      result = `${quantity.toLocaleString(undefined, { minimumFractionDigits: 2 })} ${unitTo}`;
+    } else {
+      result = `Conversión no definida (${unitFrom} a ${unitTo})`;
+    }
+
+    conversionResultP.textContent = result;
+  });
+
+
+  // --- Inicialización ---
+  showSection('lista-productos'); // Mostrar la primera sección al cargar
+  renderProductsTable(); // Cargar productos iniciales
+});
+  </script>
+</body>
+</html>
