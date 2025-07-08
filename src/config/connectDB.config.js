@@ -1,5 +1,5 @@
 import { Pool } from "pg"
-import config from "./env.config.js"
+import {config} from "./env.config.js"
 
 
 export const dataBase = new Pool({
