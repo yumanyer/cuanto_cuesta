@@ -5,12 +5,14 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --env-file developer.env src/app.js"
+    "dev": "nodemon"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3"
   },
   "devDependencies": {

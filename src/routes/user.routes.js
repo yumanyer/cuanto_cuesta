@@ -1,9 +1,15 @@
 import express from 'express';
-import { UserController } from "../controllers/user.controllers.js"
+import { loginUser, UserRegistrer } from "../controllers/user.controllers.js"
+import { checkEmailExists } from '../Middleware/mail.middleware.js';
+import { userMiddleware } from '../Middleware/user.middleware.js';
+
 
 const router = express.Router()
 
 
-router.post("/",UserController)
+router.post("/register", checkEmailExists, UserRegistrer);
 
-export default router
+router.post("/Login", loginUser);
+
+ 
+export default router 

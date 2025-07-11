@@ -22,13 +22,13 @@ dataBase.query("SELECT NOW()")
     console.error('Error al conectar a la base de datos:', error);
     process.exit(1);
 })
-
+ 
 async function InitApp(){
     try {
 
        
         
-        app.use("/user",userRoutes)
+        app.use("/api/users",userRoutes)
 
         app.get("/",(req,res)=>{
             res.send("server prendido")

@@ -7,6 +7,7 @@ export const config = {
         password: process.env.PGPASSWORD,
         database: process.env.PGDATABASE,
         port: Number(process.env.PGPORT)
-    }
+    },
+    JWT_SECRET:process.env.JWT_SECRET
 }
 
