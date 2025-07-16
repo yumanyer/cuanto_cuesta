@@ -1,4 +1,4 @@
 /developer.env
 node_modules/
 /nodemon.*
-ideas.txt
+*.txt
