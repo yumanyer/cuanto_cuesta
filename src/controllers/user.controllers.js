@@ -60,7 +60,7 @@ export const loginUser = async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ details: "Este correo no existe pa" });
+      return res.status(401).json({ details: "Usuario o contraseña incorrectos" });
     }
 
     const user = result.rows[0];
@@ -68,7 +68,7 @@ export const loginUser = async (req, res) => {
     const isPasswordCorrect = await verifyPassword(Password, user.Password);
 
     if (!isPasswordCorrect) {
-      return res.status(401).json({ details: "Contraseña incorrecta" });
+      return res.status(401).json({ details: "Usuario o contraseña incorrectos" });
     }
 
     // Generar token
