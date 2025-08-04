@@ -22,7 +22,7 @@ export async function UserRegistrer(req, res) {
       });
     }
 
-    const userRole = Rol || "Pastelero";
+    const userRole = Rol ;
     const idUser = await createUser(Name, Email, Password, userRole);
 
     const token = generateToken({
@@ -80,7 +80,7 @@ export const loginUser = async (req, res) => {
     });
 
     return res.status(200).json({
-      details: `te pudiste logear ${user.Name}`,
+      details: `Bienvenido Sr. ${user.Name}`,
       token,
       user: Email,
       userId: user.id,

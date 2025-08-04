@@ -1,4 +1,5 @@
 import { verifyToken } from '../config/jwt.config.js';
+import { dataBase } from "../config/connectDB.config.js";
 
 export const userMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -20,6 +21,11 @@ export const userMiddleware = (req, res, next) => {
     // Verificar el token
     const decoded = verifyToken(token);
 
+    // VERIFICO QUE EÑ USARIO EXISTE 
+    const result =  dataBase.query('SELECT id FROM cuesta_tanto.usuarios WHERE id = $1', [decoded.id]);
+    if (result.rows.length === 0) {
+      return res.status(403).json({ message: 'Usuario inválido o eliminado' });
+    }
     // Guardar info del usuario en la request
     req.user = decoded;
 

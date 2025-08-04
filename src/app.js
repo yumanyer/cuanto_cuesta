@@ -2,6 +2,7 @@ import express from "express"
 import { dataBase } from "./config/connectDB.config.js"
 import {config} from "./config/env.config.js"
 import userRoutes from "./routes/user.routes.js"
+import matterRouter from "./routes/matterRaw.routes.js"
 // import matterRouter from "./routes/matterRaw.routes.js"
 
 
@@ -30,6 +31,8 @@ async function InitApp(){
        
         
         app.use("/api/users",userRoutes)
+        app.use("/api/matterRaw",matterRouter)
+
 
         app.get("/",(req,res)=>{
             res.send("server prendido")

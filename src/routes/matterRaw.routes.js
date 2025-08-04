@@ -1,9 +1,10 @@
-// import {Router} from "express"
+    import express from "express"
+    import { MatterRaw } from "../models/matterRaw.models.js"
+    import { userMiddleware } from "../Middleware/user.middleware.js"
+import { MatterRawControllers } from "../controllers/matterRaw.controllers.js"
 
-// const matterRouter =  Router()
+    const MatterRawRouter = express.Router()
 
-// matterRouter.post("/materiaPrima")
+    MatterRawRouter.post("/create",userMiddleware,MatterRawControllers)
 
-// matterRouter.get("/misMaterias")
-
-// export default matterRouter
+    export default MatterRawRouter
