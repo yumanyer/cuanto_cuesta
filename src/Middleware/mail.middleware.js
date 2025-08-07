@@ -8,6 +8,7 @@ export const checkEmailExists= async (req,res,next)=>{
         if(result.rows.length>0){
             return res.status(409)
             .json({
+                // esto lo recomenda la ia para el frontend
             type: "EMAIL_ALREADY_EXISTS",
             details: "Este correo ya fue registrado"
         })

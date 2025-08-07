@@ -22,7 +22,7 @@ export async function UserRegistrer(req, res) {
       });
     }
 
-    const userRole = Rol ;
+    const userRole = Rol || "Pastelero";
     const idUser = await createUser(Name, Email, Password, userRole);
 
     const token = generateToken({

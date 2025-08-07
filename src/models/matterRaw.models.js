@@ -24,6 +24,29 @@ export class MatterRaw{
         }
     
     }
+
+    async  modifyProduct(nombre_producto,cantidad_comprada,unidad,precio,id,user_id){
+        try {
+        const query='UPDATE cuesta_tanto.materia_prima SET nombre_producto = $3, cantidad_comprada = $4, unidad = $5, precio = $6 WHERE id = $1 AND user_id = $2 RETURNING *'
+        const values=[id, user_id, nombre_producto, cantidad_comprada, unidad, precio]
+        const result=await dataBase.query(query,values)
+        return result.rows[0]
+        } catch (error) {
+          throw error
+        }
 }
 
+    async deleteProduct(id){
+        try {
+            const query = 'DELETE from  cuesta_tanto.materia_prima where id = $1 RETURNING * ' 
+            const values = [id]
+            const result = await dataBase.query(query,values)
+            return result
+        } catch (error) {
+            throw error
+        }
+    }
+
+
+}
     
