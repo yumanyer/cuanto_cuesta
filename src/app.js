@@ -5,12 +5,15 @@ import {config} from "./config/env.config.js"
 import userRoutes from "./routes/user.routes.js"
 import matterRouter from "./routes/matterRaw.routes.js"
 import getDirname from "../dirname.js"
-
+import { logRequest } from "./middleware/logs.middleware.js"
 
 // CONFIG SERVER
 const app = express()
 const PORT = process.env.PORT || config.port 
 const publicPath = path.join(getDirname(), '../frontend/public')
+
+// config de winston
+app.use(logRequest)
 
 // config de express
 app.use(express.json() )
