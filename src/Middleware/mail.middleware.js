@@ -1,7 +1,11 @@
 import { dataBase } from "../config/connectDB.config.js";
 
 export const checkEmailExists= async (req,res,next)=>{
-
+if (!req.is("application/json")) {
+  return res.status(400).json({
+    details: "El formato de la petición no es válido. Por favor, verifica que sea correcto."
+  });
+}
     try {
         const {Email} = req.body
         const result = await dataBase.query('SELECT * FROM cuesta_tanto.usuarios WHERE "Email" = $1', [Email]);

@@ -3,11 +3,35 @@ import { createUser } from "../models/user.models.js"
 import { verifyPassword } from "../utils/hash.utils.js";
 import { generateToken,verifyToken } from "../config/jwt.config.js";
 
+
+function evaluatePasswordStrength(password) {
+  let score = 0;
+  let feedback = [];
+
+  if (password.length >= 8) score += 1; else feedback.push('al menos 8 caracteres');
+  if (/[a-z]/.test(password)) score += 1; else feedback.push('letras minúsculas');
+  if (/[A-Z]/.test(password)) score += 1; else feedback.push('letras mayúsculas');
+  if (/[0-9]/.test(password)) score += 1; else feedback.push('números');
+  if (/[^A-Za-z0-9]/.test(password)) score += 1; else feedback.push('símbolos especiales');
+
+  return { score, feedback };
+}
+
+
+
 export async function UserRegistrer(req, res) {
   try {
+
     const { Name, Email, Password, Rol } = req.body;
 
     const regemail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-z]{2,})+$/;
+
+    const { score, feedback } = evaluatePasswordStrength(Password);
+      if (score < 3) {
+        return res.status(422).json({
+          details: `La contraseña debe ser más segura. Falta: ${feedback.join(', ')}`
+        });
+      }
 
     if (!Name || !Email || !Password) {
       return res.status(422).json({
@@ -16,9 +40,8 @@ export async function UserRegistrer(req, res) {
     }
 
     if (!regemail.test(Email)) {
-      return res.status(418).json({
-        details:
-          "SOY UNA TETERA Y EL CORREO QUE ME DISTE LE FALTA COSAS fijate si te comiste una letra o un punto",
+      return res.status(422).json({
+        details: "El formato del correo electrónico no es válido. Por favor, verifica que sea correcto."
       });
     }
 
@@ -47,6 +70,8 @@ export async function UserRegistrer(req, res) {
 
 // Login de usuario
 export const loginUser = async (req, res) => {
+
+
   const { Email, Password } = req.body;
 
   if (!Email || !Password) {
@@ -88,9 +113,8 @@ export const loginUser = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(401).json({
-      details: "FIJATE QUE PUSISTE ALGO MAL POR QUE NO ENCUENTRO NI EL CORREO NI LA CONTRASEÑA",
-      error,
+    return res.status(500).json({
+      details: "Error al intentar iniciar sesión",
     });
   }
 };
