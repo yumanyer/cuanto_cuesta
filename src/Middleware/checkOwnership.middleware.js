@@ -16,7 +16,7 @@ export const checkOwnership = async (req, res, next) => {
       return next(); // ✅ El producto existe y es del usuario
     }
 
-    // ❌ No se dice si fue porque no existe o no es del usuario
+    //  No se dice si fue porque no existe o no es del usuario
     return res.status(403).json({
       message: "No tenés permisos para acceder a este recurso",
     });
