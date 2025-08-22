@@ -6,6 +6,7 @@ import userRoutes from "./routes/user.routes.js"
 import matterRouter from "./routes/matterRaw.routes.js"
 import getDirname from "../dirname.js"
 import { logRequest } from "./middleware/logs.middleware.js"
+import cookieParser from "cookie-parser"
 
 // CONFIG SERVER
 const app = express()
@@ -18,7 +19,7 @@ app.use(logRequest)
 // config de express
 app.use(express.json() )
 app.use(express.urlencoded({ extended: true }))
-
+app.use(cookieParser())
 // CONFIG DE FRONT 
 app.use(express.static(publicPath))
 
@@ -47,9 +48,11 @@ async function InitApp(){
         })
 
          // UNA VEZ CONECTADA LA DB INICIO LA APP
+         //2-3 ms
+         console.time("Inicio de la aplicación")
         app.listen(config.port, ()=>{
         console.log(`Escuchando a http://localhost:${config.port} ` )})
-
+        console.timeEnd("Inicio de la aplicación")
     } catch (error) {
         console.error('No se pudo conectar a la base de datos:', error);
         process.exit(1);

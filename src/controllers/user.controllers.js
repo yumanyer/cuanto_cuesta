@@ -54,7 +54,12 @@ export async function UserRegistrer(req, res) {
       Email,
       Rol: userRole, // ✅ Usamos el rol real, no el que vino crudo
     });
-
+    res.cookie("authToken",token,{
+      httpOnly:true,
+      secure:true,
+      sameSite:"strict",
+      maxAge:3600*1000 //es la duración de la cookie en milisegundos.
+    })
     return res.status(201).json({
       message: "Usuario Registrado con Éxito",
       token,
@@ -103,10 +108,14 @@ export const loginUser = async (req, res) => {
       Email: user.Email,
       Rol: user.Rol,
     });
-
+    res.cookie("authToken", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 3600 * 1000, // es la duración de la cookie en milisegundos.
+    });
     return res.status(200).json({
       details: `Bienvenido Sr. ${user.Name}`,
-      token,
       user: Email,
       userId: user.id,
       userRole: user.Rol,

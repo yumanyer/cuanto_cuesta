@@ -8,7 +8,7 @@ const router = express.Router()
 
 router.post("/register",jsonValidator,checkEmailExists, UserRegistrer);
 
-router.post("/login", jsonValidator,loginUser) ;
+router.post("/login", jsonValidator,loginUser ,) ;
 
  
-export default router 
+export default router  
