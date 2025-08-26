@@ -1,17 +1,26 @@
+//IMPORTS
 import express from "express"
 import path from "path"
+import cookieParser from "cookie-parser"
+//DB
 import { dataBase } from "./config/connectDB.config.js"
+//VARIABLES
 import {config} from "./config/env.config.js"
+//RUTAS
 import userRoutes from "./routes/user.routes.js"
 import matterRouter from "./routes/matterRaw.routes.js"
+// DIRNAME => OBTIENE LA RUTA DEL DIRECTORIO 
 import getDirname from "../dirname.js"
+//MIDDLEWARE
 import { logRequest } from "./middleware/logs.middleware.js"
-import cookieParser from "cookie-parser"
+import { requireAuth } from "./middleware/requireAuth.middleware.js"
 
 // CONFIG SERVER
 const app = express()
 const PORT = process.env.PORT || config.port 
+const privatePath = path.join(getDirname(), '../frontend/private')
 const publicPath = path.join(getDirname(), '../frontend/public')
+app.use(express.static(path.join(getDirname(), 'public')));
 
 // config de winston
 app.use(logRequest)
@@ -22,6 +31,9 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 // CONFIG DE FRONT 
 app.use(express.static(publicPath))
+console.log("RUTA PUBLICA: ",publicPath)
+console.log("RUTA PRIVADA: ",privatePath)
+
 
  // CONEXION A LA postgreSQL
 dataBase.query("SELECT NOW()")
@@ -41,6 +53,11 @@ async function InitApp(){
         
         app.use("/api/users",userRoutes)
         app.use("/api/matterRaw",matterRouter)
+
+        //protego la ruta de cargar materia separando logica de interfaz
+        app.get("/matterRaw", requireAuth(["Pastelero","Admin"]), (req,res)=>{
+            res.sendFile(path.join(privatePath,"/matterRaw.html"))
+        })
 
 
         app.get("/",(req,res)=>{

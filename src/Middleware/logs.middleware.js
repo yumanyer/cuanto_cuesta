@@ -1,13 +1,23 @@
 import { logger } from "../utils/winstons.js";
 
 export const logRequest = (req, res, next) => {
+  const start = Date.now();
   const { method, url, body } = req;
 
-  // Solo body resumido si existe
-  const bodyPreview = body && Object.keys(body).length ? JSON.stringify(body) : null;
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    const { statusCode } = res;
 
-  logger.http(`${method} ${url} - ${new Date().toISOString()}${bodyPreview ? " - body: " + bodyPreview : ""}`);
+    // Nivel según status
+    let level = "http";
+    if (statusCode >= 500) level = "error";
+    else if (statusCode >= 400) level = "warn";
+    else if (statusCode >= 200 && statusCode < 300) level = "success";
+
+    const bodyPreview = body && Object.keys(body).length ? JSON.stringify(body) : "";
+
+    logger.log(level, `${method} ${url} ${statusCode} - ${duration}ms${bodyPreview ? " - body: " + bodyPreview : ""}`);
+  });
 
   next();
 };
-

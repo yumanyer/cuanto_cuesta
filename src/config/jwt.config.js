@@ -5,6 +5,8 @@ export function generateToken(payload){
     return jwt.sign(payload,config.JWT_SECRET,{
         expiresIn:"1h"
     })
+        console.log("TOKEN",config.JWT_SECRET)
+
 }
 
 export function verifyToken(token){
