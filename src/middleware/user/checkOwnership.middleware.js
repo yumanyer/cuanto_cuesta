@@ -1,5 +1,4 @@
-import { dataBase } from "../config/connectDB.config.js";
-
+import {  dataBase } from "../../config/connectDB.config.js";
 export const checkOwnership = async (req, res, next) => {
   try {
     const { id } = req.params;
