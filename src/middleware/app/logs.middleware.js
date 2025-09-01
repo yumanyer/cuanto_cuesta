@@ -1,4 +1,4 @@
-import { logger } from "../utils/winstons.js";
+import { logger } from "../../utils/winstons.js";
 
 export const logRequest = (req, res, next) => {
   const start = Date.now();
@@ -13,6 +13,7 @@ export const logRequest = (req, res, next) => {
     if (statusCode >= 500) level = "error";
     else if (statusCode >= 400) level = "warn";
     else if (statusCode >= 200 && statusCode < 300) level = "success";
+    else if (statusCode >= 300 && statusCode < 400) level = "info";
 
     const bodyPreview = body && Object.keys(body).length ? JSON.stringify(body) : "";
 

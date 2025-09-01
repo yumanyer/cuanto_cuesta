@@ -1,5 +1,5 @@
-import { verifyToken } from '../config/jwt.config.js';
-import { dataBase } from "../config/connectDB.config.js";
+import { verifyToken } from '../../config/jwt.config.js';
+import { dataBase } from "../../config/connectDB.config.js";
 
 export const userMiddleware = async(req, res, next) => {
   

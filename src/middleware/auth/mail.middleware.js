@@ -1,4 +1,4 @@
-import { dataBase } from "../config/connectDB.config.js";
+import { dataBase } from "../../config/connectDB.config.js";
 
 export const checkEmailExists= async (req,res,next)=>{
 if (!req.is("application/json")) {

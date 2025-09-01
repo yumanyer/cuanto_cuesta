@@ -1,8 +1,8 @@
 import express from "express";
 import { MatterRaw } from "../models/matterRaw.models.js";
 import { deleteProdctUser, createProduct, modifyProduct,getProductById} from "../controllers/matterRaw.controllers.js";
-import { checkOwnership } from "../middleware/checkOwnership.middleware.js"; 
-import { requireAuth } from "../middleware/requireAuth.middleware.js";
+import { checkOwnership } from "../middleware/user/checkOwnership.middleware.js";
+import { requireAuth } from "../middleware/auth/requireAuth.middleware.js";
 
 const MatterRawRouter = express.Router();
 

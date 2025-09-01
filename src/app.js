@@ -12,9 +12,8 @@ import matterRouter from "./routes/matterRaw.routes.js"
 // DIRNAME => OBTIENE LA RUTA DEL DIRECTORIO 
 import getDirname from "../dirname.js"
 //MIDDLEWARE
-import { logRequest } from "./middleware/logs.middleware.js"
-import { requireAuth } from "./middleware/requireAuth.middleware.js"
-
+import { logRequest } from "./middleware/app/logs.middleware.js"
+import { requireAuth } from "./middleware/auth/requireAuth.middleware.js"
 // CONFIG SERVER
 const app = express()
 const PORT = process.env.PORT || config.port 
@@ -58,12 +57,9 @@ async function InitApp(){
         app.get("/matterRaw", requireAuth(["Pastelero","Admin"]), (req,res)=>{
             res.sendFile(path.join(privatePath,"/matterRaw.html"))
         })
-
-
         app.get("/",(req,res)=>{
             res.sendFile(path.join(publicPath,"home.html"))
         })
-
          // UNA VEZ CONECTADA LA DB INICIO LA APP
          //2-3 ms
          console.time("Inicio de la aplicación")

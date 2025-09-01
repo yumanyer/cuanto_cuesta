@@ -1,7 +1,7 @@
 import express from 'express';
 import { loginUser, UserRegistrer } from "../controllers/user.controllers.js"
-import { checkEmailExists } from '../middleware/mail.middleware.js';
-import { jsonValidator } from '../middleware/json.middleware.js';
+import { checkEmailExists } from '../middleware/auth/mail.middleware.js';
+import { jsonValidator } from '../middleware/auth/json.middleware.js'; 
 const router = express.Router()
 
 

@@ -20,7 +20,7 @@ const colors = {
   error: 'red',
   warn: 'yellow',
   success: 'green',
-  info: 'grey',
+  info: 'magenta',
   http: 'blue',
   verbose: 'cyan',
   debug: 'white',

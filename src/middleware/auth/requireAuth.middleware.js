@@ -1,5 +1,5 @@
 //backend/src/middleware/requireAuth.middleware.js
-import { verifyToken } from "../config/jwt.config.js";
+import { verifyToken } from "../../config/jwt.config.js";
 
 export const requireAuth = (allowRoles=[]) =>async (req ,res ,next ) =>{
     const token = req.cookies.authToken

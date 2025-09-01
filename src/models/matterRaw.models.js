@@ -43,11 +43,11 @@ export class MatterRaw{
     //crear nuevo producto en la db
     async createProduct(nombre_producto,cantidad_comprada,unidad,precio,user_id){
         try {
-        console.time("createProduct")
         const query='INSERT INTO cuesta_tanto.materia_prima(nombre_producto,cantidad_comprada,unidad,precio,user_id) VALUES ($1,$2,$3,$4,$5) RETURNING *'
-        console.timeEnd("createProduct")
         const values=[nombre_producto,cantidad_comprada,unidad,precio,user_id]
+        console.time("createProduct")
         const result=await dataBase.query(query,values)
+        console.timeEnd("createProduct")
         return result.rows[0]
         } catch (error) {
             throw error
@@ -57,11 +57,11 @@ export class MatterRaw{
 
     async  modifyProduct(nombre_producto,cantidad_comprada,unidad,precio,id,user_id){
         try {
-        console.time("modifyProduct")
-        const query='UPDATE cuesta_tanto.materia_prima SET nombre_producto = $3, cantidad_comprada = $4, unidad = $5, precio = $6 WHERE id = $1 AND user_id = $2 RETURNING *'
-        console.timeEnd("modifyProduct")
-        const values=[id, user_id, nombre_producto, cantidad_comprada, unidad, precio]
+            const query='UPDATE cuesta_tanto.materia_prima SET nombre_producto = $3, cantidad_comprada = $4, unidad = $5, precio = $6 WHERE id = $1 AND user_id = $2 RETURNING *'
+            const values=[id, user_id, nombre_producto, cantidad_comprada, unidad, precio]
+            console.time("modifyProduct")
         const result=await dataBase.query(query,values)
+        console.timeEnd("modifyProduct")
         return result.rows[0]
         } catch (error) {
           throw error
@@ -70,11 +70,11 @@ export class MatterRaw{
 
     async deleteProduct(id,user_id){
         try {
-            console.time("deleteProduct")
             const query = 'DELETE from  cuesta_tanto.materia_prima where id = $1 and user_id = $2 RETURNING * '
-            console.timeEnd("deleteProduct")
             const values = [id,user_id]
+            console.time("deleteProduct")
             const result = await dataBase.query(query,values)
+            console.timeEnd("deleteProduct")
             return result
         } catch (error) {
             throw error
