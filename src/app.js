@@ -9,6 +9,8 @@ import {config} from "./config/env.config.js"
 //RUTAS
 import userRoutes from "./routes/user.routes.js"
 import matterRouter from "./routes/matterRaw.routes.js"
+import RecetasRouter from "./routes/recetas.routes.js"
+import IngredienteRouter from "./routes/ingrediente.routes.js"
 // DIRNAME => OBTIENE LA RUTA DEL DIRECTORIO 
 import getDirname from "../dirname.js"
 //MIDDLEWARE
@@ -52,6 +54,8 @@ async function InitApp(){
         
         app.use("/api/users",userRoutes)
         app.use("/api/matterRaw",matterRouter)
+        app.use("/api/recetas", RecetasRouter)
+        app.use("/api/ingredientE", IngredienteRouter)
 
         //protego la ruta de cargar materia separando logica de interfaz
         app.get("/matterRaw", requireAuth(["Pastelero","Admin"]), (req,res)=>{

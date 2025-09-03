@@ -49,15 +49,15 @@ export async function createProduct(req, res) {
     const user_id = req.user?.id;
     if (!user_id) return res.status(401).json({ details: "No tienes permisos para realizar esta acción" });
 
-    const { nombre_producto, cantidad_comprada, unidad, precio } = req.body;
+    const { nombre_producto, stock, unidad, precio } = req.body;
 
     // Validar campos obligatorios
-    if (!nombre_producto || cantidad_comprada == null || !unidad || precio == null) {
-      return res.status(422).json({ details: "Los campos nombre_producto, cantidad_comprada, unidad y precio son obligatorios" });
+    if (!nombre_producto || stock == null || !unidad || precio == null) {
+      return res.status(422).json({ details: "Los campos nombre_producto, stock, unidad y precio son obligatorios" });
     }
 
     const nombre = nombre_producto.trim();
-    const cantidad = Number(cantidad_comprada);
+    const cantidad = Number(stock);
     const precioNum = Number(precio);
 
     // Normalizar unidad
@@ -104,15 +104,15 @@ export async function modifyProduct(req, res) {
     if (!user_id) return res.status(401).json({ details: "No tienes permisos para realizar esta acción" });
 
     const { id } = req.params;
-    const { nombre_producto, cantidad_comprada, unidad, precio } = req.body;
+    const { nombre_producto, stock, unidad, precio } = req.body;
 
     // Validar campos obligatorios
-    if (!id || !nombre_producto || cantidad_comprada == null || !unidad || precio == null) {
-      return res.status(422).json({ details: "Los campos nombre_producto, cantidad_comprada, unidad y precio son obligatorios" });
+    if (!id || !nombre_producto || stock == null || !unidad || precio == null) {
+      return res.status(422).json({ details: "Los campos nombre_producto, stock, unidad y precio son obligatorios" });
     }
 
     const nombre = nombre_producto.trim();
-    const cantidad = Number(cantidad_comprada);
+    const cantidad = Number(stock);
     const precioNum = Number(precio);
 
     // Normalizar unidad
@@ -123,7 +123,7 @@ export async function modifyProduct(req, res) {
 
     // Validaciones básicas
     if (!nombre || nombre.length < 3 || nombre.length > 50) return res.status(422).json({ details: "El nombre del producto debe tener entre 3 y 50 caracteres" });
-    if (isNaN(cantidad) || cantidad <= 0) return res.status(422).json({ details: "La cantidad debe ser un número mayor a cero" });
+    if (typeof cantidad !== 'number' || isNaN(cantidad) || cantidad <= 0) return res.status(422).json({ details: "La cantidad debe ser un número mayor a cero" });
     if (isNaN(precioNum) || precioNum <= 0) return res.status(422).json({ details: "El precio debe ser un número mayor a cero" });
 
     // Comprobar duplicados

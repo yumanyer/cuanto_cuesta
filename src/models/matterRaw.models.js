@@ -1,11 +1,11 @@
 import { dataBase } from "../config/connectDB.config.js";
 
 export class MatterRaw{
-    constructor(id,user_id,nombre_producto,cantidad_comprada,unidad,precio,created_at){
+    constructor(id,user_id,nombre_producto,stock,unidad,precio,created_at){
         this.id=id
         this.user_id=user_id
         this.nombre_producto=nombre_producto
-        this.cantidad_comprada=cantidad_comprada
+        this.stock=stock
         this.unidad=unidad
         this.precio=precio
         this.created_at=created_at
@@ -41,10 +41,10 @@ export class MatterRaw{
     }
 
     //crear nuevo producto en la db
-    async createProduct(nombre_producto,cantidad_comprada,unidad,precio,user_id){
+    async createProduct(nombre_producto,stock,unidad,precio,user_id){
         try {
-        const query='INSERT INTO cuesta_tanto.materia_prima(nombre_producto,cantidad_comprada,unidad,precio,user_id) VALUES ($1,$2,$3,$4,$5) RETURNING *'
-        const values=[nombre_producto,cantidad_comprada,unidad,precio,user_id]
+        const query='INSERT INTO cuesta_tanto.materia_prima(nombre_producto,stock,unidad,precio,user_id) VALUES ($1,$2,$3,$4,$5) RETURNING *'
+        const values=[nombre_producto,stock,unidad,precio,user_id]
         console.time("createProduct")
         const result=await dataBase.query(query,values)
         console.timeEnd("createProduct")
@@ -55,10 +55,10 @@ export class MatterRaw{
     
     }
 
-    async  modifyProduct(nombre_producto,cantidad_comprada,unidad,precio,id,user_id){
+    async  modifyProduct(nombre_producto,stock,unidad,precio,id,user_id){
         try {
-            const query='UPDATE cuesta_tanto.materia_prima SET nombre_producto = $3, cantidad_comprada = $4, unidad = $5, precio = $6 WHERE id = $1 AND user_id = $2 RETURNING *'
-            const values=[id, user_id, nombre_producto, cantidad_comprada, unidad, precio]
+            const query='UPDATE cuesta_tanto.materia_prima SET nombre_producto = $3, stock = $4, unidad = $5, precio = $6 WHERE id = $1 AND user_id = $2 RETURNING *'
+            const values=[id, user_id, nombre_producto, stock, unidad, precio]
             console.time("modifyProduct")
         const result=await dataBase.query(query,values)
         console.timeEnd("modifyProduct")
