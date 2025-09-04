@@ -1,4 +1,5 @@
 import { Ingredientes } from "../models/ingredientes.models.js";
+import { normalizarUnidad,getUnidadesValidas } from "../utils/unidades.utils.js";
 
 const instanciaIngredientes = new Ingredientes();
 
@@ -6,37 +7,30 @@ const instanciaIngredientes = new Ingredientes();
 
 export async function createIngrediente(req, res) {
     try {
-        const unidadesValidas = {
-            gramos: { normalizada: "Gramos", factor: 1 },
-            mililitro: { normalizada: "Mililitro", factor: 1 },
-            individual: { normalizada: "Individual", factor: 1 },
-            kilo: { normalizada: "Gramos", factor: 1000 },
-            litro: { normalizada: "Mililitro", factor: 1000 }
-        };
 
         const { receta_id, materia_prima_id, cantidad_usada, unidad } = req.body;
 
+        // valido al usario 
         const user_id = req.user?.id;
         if (!user_id) {
             return res.status(401).json({ details: "No tienes permisos para realizar esta acción" });
-        }   
-        if (!receta_id || !materia_prima_id || cantidad_usada == null || !unidad) {
+        }  
+        // valido los campos obligatorios
+        if (receta_id==null || materia_prima_id==null || cantidad_usada == null || unidad==null ) {
             return res.status(422).json({ details: "Los campos receta_id, materia_prima_id, cantidad_usada y unidad son obligatorios" });
         }
 
-
-        const unidadKey = unidad.trim().toLowerCase();
-        const unidadInfo = unidadesValidas[unidadKey];
-        if (!unidadInfo) {
-            return res.status(422).json({ details: "Unidad inválida" });
+        const result = normalizarUnidad(unidad , cantidad_usada)
+        if (!result) {
+            return res.status(422).json({ details: `Unidad no válida. Las unidades permitidas son: ${getUnidadesValidas().join(", ")}` });
         }
+        const { unidadNormalizada, cantidadNormalizada } = result;
+
+
         const cantidad = Number(cantidad_usada);
         if (isNaN(cantidad) || cantidad <= 0) {
             return res.status(422).json({ details: "Cantidad usada debe ser un número mayor a cero" });
         }
-        //  Valida la unidad y obtiene la info de normalización 
-        const unidadNormalizada = unidadInfo.normalizada;
-        const cantidadNormalizada = cantidad * unidadInfo.factor;
 
         console.time("createIngrediente_controller");
 
@@ -63,11 +57,23 @@ export async function bulkCreateIngrediente(req, res) {
 
         if (!user_id) return res.status(401).json({ details: "No autorizado" });
         if (!receta_id || !Array.isArray(ingredientes) || ingredientes.length === 0)
-            return res.status(422).json({ details: "Debe enviar al menos un ingrediente" });
+        return res.status(422).json({ details: "Debe enviar al menos un ingrediente" });
 
-        // 2️⃣ Llamar al model para insertar los ingredientes
+        for(const ing of ingredientes){
+
+            const result = normalizarUnidad(ing.unidad , ing.cantidad_usada)
+            if (!result) {
+                return res.status(422).json({ details: `Unidad no válida. Las unidades permitidas son: ${getUnidadesValidas().join(", ")}` });
+            }
+            const { unidadNormalizada, cantidadNormalizada } = result;
+            ing.unidad = unidadNormalizada;
+            ing.cantidad_usada = cantidadNormalizada;   
+
+        }
+        
+        
+        
         const created = await instanciaIngredientes.bulkCreateIngrediente(user_id, receta_id, ingredientes);
-
         return res.status(201).json(created);
     } catch (error) {
         console.error("Error en bulkCreateIngrediente:", error);

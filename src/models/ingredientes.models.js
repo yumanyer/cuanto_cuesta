@@ -28,11 +28,8 @@ export class Ingredientes{
             throw error
         }
 }
-
-
-
     // Bulk insert de ingredientes en una sola transacción
-async bulkCreateIngrediente(user_id, receta_id, ingredientes) {
+    async  bulkCreateIngrediente(user_id, receta_id, ingredientes) {
     const client = await dataBase.connect();
     try {
         await client.query('BEGIN');
@@ -64,6 +61,8 @@ async bulkCreateIngrediente(user_id, receta_id, ingredientes) {
     } finally {
         client.release();
     }
-}
+    }
+
+    // async getIngrediente(user_id,receta_id,ingrediente)
 
 }

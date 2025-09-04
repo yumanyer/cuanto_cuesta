@@ -1,4 +1,4 @@
-import { logger } from "../../utils/winstons.js";
+import { logger } from "../../utils/winstons.utils.js";
 
 export const logRequest = (req, res, next) => {
   const start = Date.now();
