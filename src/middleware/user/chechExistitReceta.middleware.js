@@ -1,9 +1,14 @@
 import { dataBase } from "../../config/connectDB.config.js";
 
+// Verificar que el usuario autenticado sea dueño de la receta
 export const checkOwnershipReceta = async (req, res, next) => {
   try {
-    const {receta_id} = req.body; 
+    const receta_id =  req.params?.id;
     const user_id = req.user.id;
+
+    if (!receta_id) {
+      return res.status(422).json({ message: "No se recibió receta_id" });
+    }
 
     const query = `
       SELECT 1 FROM cuesta_tanto.recetas
@@ -16,7 +21,7 @@ export const checkOwnershipReceta = async (req, res, next) => {
       return next(); // ✅ El usuario es dueño de la receta
     }
 
-    return res.status(403).json({
+    return res.status(401).json({
       message: "No tenés permisos para modificar esta receta",
     });
   } catch (error) {

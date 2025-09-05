@@ -1,12 +1,5 @@
 import { MatterRaw } from "../models/matterRaw.models.js"
 
-
-
-
-
-
-
-
 const instanciaMatterRaw = new MatterRaw()
 
 /**
@@ -21,6 +14,16 @@ const instanciaMatterRaw = new MatterRaw()
  3 No hay error del servidor ni del cliente.
  4 El frontend no tiene que manejar dos flujos distintos (éxito vs error).
  */
+// Mapeo de unidades y su factor de conversión
+const unidadesValidas = {
+  gramos: { normalizada: "Gramos", factor: 1 },
+  mililitro: { normalizada: "Mililitro", factor: 1 },
+  individual: { normalizada: "Individual", factor: 1 },
+  kilo: { normalizada: "Gramos", factor: 1000 },
+  litro: { normalizada: "Mililitro", factor: 1000 }
+};
+
+// --- OBTENER PRODUCTOS DEL USUARIO ---
 export async function getProductById(req,res) {
    const user_id = req.user.id
    const products = await instanciaMatterRaw.getProductById(user_id)
@@ -32,15 +35,6 @@ export async function getProductById(req,res) {
      producto_encontrado: products 
    });
 }
-
-// Mapeo de unidades y su factor de conversión
-const unidadesValidas = {
-  gramos: { normalizada: "Gramos", factor: 1 },
-  mililitro: { normalizada: "Mililitro", factor: 1 },
-  individual: { normalizada: "Individual", factor: 1 },
-  kilo: { normalizada: "Gramos", factor: 1000 },
-  litro: { normalizada: "Mililitro", factor: 1000 }
-};
 
 // --- CREAR PRODUCTO ---
 export async function createProduct(req, res) {
@@ -150,8 +144,6 @@ export async function modifyProduct(req, res) {
     return res.status(500).json({ details: "Error al modificar el producto", error: error.message });
   }
 }
-
-
 
 export async function deleteProdctUser(req, res) {
   try {

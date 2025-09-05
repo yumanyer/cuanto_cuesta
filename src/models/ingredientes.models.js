@@ -63,6 +63,22 @@ export class Ingredientes{
     }
     }
 
-    // async getIngrediente(user_id,receta_id,ingrediente)
+    async getIngrediente(user_id,receta_id){
+        try {
+            const query=`
+            SELECT * FROM cuesta_tanto.ingredientes 
+            WHERE user_id = $1 AND receta_id = $2 ;
+            `
+            const values= [user_id,receta_id]
+            console.time("getIngrediente")
+            const result=await dataBase.query(query,values)
+            console.timeEnd("getIngrediente")
+            return result.rows
+        } catch (error) {
+            console.log()
+            console.error("Error obteniendo ingredientes:", error);
+            throw error
+        }
+    }
 
 }

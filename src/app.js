@@ -55,7 +55,7 @@ async function InitApp(){
         app.use("/api/users",userRoutes)
         app.use("/api/matterRaw",matterRouter)
         app.use("/api/recetas", RecetasRouter)
-        app.use("/api/ingredientE", IngredienteRouter)
+        app.use("/api/ingrediente", IngredienteRouter)
 
         //protego la ruta de cargar materia separando logica de interfaz
         app.get("/matterRaw", requireAuth(["Pastelero","Admin"]), (req,res)=>{

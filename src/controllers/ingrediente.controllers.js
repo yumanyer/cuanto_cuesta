@@ -81,3 +81,17 @@ export async function bulkCreateIngrediente(req, res) {
     }
 }
 
+export async function getIngredientesByRecetaId(req, res) {
+    try {
+        const receta_id  = Number(req.params.id);
+        const user_id = req.user?.id;
+        if (!user_id) return res.status(401).json({ details: "No tienes permisos para realizar esta acción" });
+        if (!receta_id) return res.status(422).json({ details: "Debe enviar al menos un ingrediente" });
+
+        const ingredientes = await instanciaIngredientes.getIngrediente(user_id, receta_id);
+        return res.status(200).json(ingredientes);
+    } catch (error) {
+        console.error("Error en getIngredientesByRecetaId:", error);
+        return res.status(500).json({ details: "Error interno" });
+    }
+}
