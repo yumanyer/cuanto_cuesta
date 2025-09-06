@@ -18,7 +18,7 @@ function evaluatePasswordStrength(password) {
 }
 
 
-
+// Registro de usuario
 export async function UserRegistrer(req, res) {
   try {
 
@@ -127,3 +127,14 @@ export const loginUser = async (req, res) => {
     });
   }
 };
+
+//Logout de usuario
+export const logoutUser = (req ,res)=>{
+  res.clearCookie("authToken",{
+    httpOnly:true,
+    secure:true,
+    sameSite:"strict",
+  })
+  return res.status(200).json({message:"Cierre de sesión exitoso" })
+
+}

@@ -44,8 +44,10 @@ export class Recetas{
 
 async getRecetaDetail(id) {
     try {
+        //INNER JOIN solo aparecen las filas que cumplen la relación en ambas tablas
+        //LEFT JOIN garantizás que la receta aparezca siempre, aunque todavía no tenga nada cargado en ingredientes
         const query = `
-            select 
+            SELECT 
                 r.id as receta_id,
                 r.nombre_receta,
                 r.descripcion,
@@ -54,12 +56,12 @@ async getRecetaDetail(id) {
                 m.nombre_producto,
                 m.precio,
                 i.cantidad_usada
-            from cuesta_tanto.recetas r
-            left join cuesta_tanto.ingredientes i
-                on i.receta_id = r.id
-            left join cuesta_tanto.materia_prima m
-                on m.id = i.materia_prima_id
-            where r.id = $1
+            FROM cuesta_tanto.recetas AS r
+            LEFT JOIN cuesta_tanto.ingredientes AS i
+                ON i.receta_id = r.id
+            LEFT JOIN cuesta_tanto.materia_prima AS m
+                ON m.id = i.materia_prima_id
+            WHERE r.id = $1
         `;
         const values = [id];
         const result = await dataBase.query(query, values);
