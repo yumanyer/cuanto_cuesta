@@ -1,3 +1,4 @@
+//src/middleware/user/chechExistitReceta.middleware.js
 import { dataBase } from "../../config/connectDB.config.js";
 
 // Verificar que el usuario autenticado sea dueño de la receta

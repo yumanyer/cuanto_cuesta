@@ -1,3 +1,4 @@
+//src/utils/unidades.utils.js
 const unidadesValidas = {
     gramos: { normalizada: "Gramos", factor: 1 },
     mililitro: { normalizada: "Mililitro", factor: 1 },

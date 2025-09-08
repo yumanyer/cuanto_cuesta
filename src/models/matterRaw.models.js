@@ -29,7 +29,7 @@ export class MatterRaw{
     async getProductById(user_id){
         try {
 
-            const query="SELECT * FROM cuesta_tanto.materia_prima WHERE user_id = $1 "
+            const query="SELECT * FROM cuesta_tanto.materia_prima WHERE user_id = $1 ORDER BY ID ASC "
             const values = [ user_id]
             console.time("getProductByIdUser")
             const result=await dataBase.query(query,values)

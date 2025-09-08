@@ -1,3 +1,4 @@
+//src/routes/recetas.routes.js
 import {Router} from "express";
 import {createReceta,getRecetasUser,getRecetaDetail,updateReceta,deleteReceta} from "../controllers/recetas.controllers.js";
 import {requireAuth} from "../middleware/auth/requireAuth.middleware.js"

@@ -1,3 +1,4 @@
+//src/models/recetas.model.js
 import {dataBase} from "../config/connectDB.config.js"
 
 
@@ -11,7 +12,7 @@ export class Recetas{
         this.created_at=created_at
     }
 
-    async creatReceta(user_id,nombre_receta,descripcion,precio_total){
+    async createReceta(user_id,nombre_receta,descripcion,precio_total){
         try {
             const query = "INSERT INTO cuesta_tanto.recetas(user_id,nombre_receta,descripcion,precio_total) VALUES ($1,$2,$3,$4) RETURNING *"   
             const values = [user_id,nombre_receta,descripcion,precio_total]
@@ -42,7 +43,7 @@ export class Recetas{
         }
     }
 
-async getRecetaDetail(id) {
+    async getRecetaDetail(id) {
     try {
         //INNER JOIN solo aparecen las filas que cumplen la relación en ambas tablas
         //LEFT JOIN garantizás que la receta aparezca siempre, aunque todavía no tenga nada cargado en ingredientes
@@ -99,7 +100,7 @@ async getRecetaDetail(id) {
         console.error("Error obteniendo detalle de la receta:", error);
         throw error;
     }
-}
+    }
 
 
     async updateReceta(id,nombre_receta,descripcion){
@@ -141,6 +142,6 @@ async getRecetaDetail(id) {
     }
 
 
-    }
+}
 
 
