@@ -12,10 +12,11 @@ export class Recetas{
         this.created_at=created_at
     }
 
-    async createReceta(user_id,nombre_receta,descripcion,precio_total){
+    async createReceta(user_id,nombre_receta,descripcion,){
         try {
             const query = "INSERT INTO cuesta_tanto.recetas(user_id,nombre_receta,descripcion,precio_total) VALUES ($1,$2,$3,$4) RETURNING *"   
-            const values = [user_id,nombre_receta,descripcion,precio_total]
+            //precio total se emepzo a calcular dinamicamente con los ingredientes, por eso lo saco del create
+            const values = [user_id,nombre_receta,descripcion,0]
             console.time("crearReceta")
             const result = await dataBase.query(query,values)
             console.timeEnd("crearReceta")
@@ -102,7 +103,7 @@ export class Recetas{
     }
     }
 
-
+    
     async updateReceta(id,nombre_receta,descripcion){
         try {
             const query=`

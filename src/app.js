@@ -32,15 +32,15 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 // CONFIG DE FRONT 
 app.use(express.static(publicPath))
-console.log("RUTA PUBLICA: ",publicPath)
-console.log("RUTA PRIVADA: ",privatePath)
 
 
  // CONEXION A LA postgreSQL
 dataBase.query("SELECT NOW()")
 .then(()=>{
     console.log("Base de datos conectada")
+    console.time("Conexión a la base de datos")
     InitApp()
+    console.timeEnd("Conexión a la base de datos")
 })
 .catch((error)=>{
     console.error('Error al conectar a la base de datos:', error);

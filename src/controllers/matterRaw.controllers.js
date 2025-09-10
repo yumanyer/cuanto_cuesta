@@ -58,7 +58,7 @@ export async function createProduct(req, res) {
     const unidadKey = unidad.trim().toLowerCase();
     const unidadInfo = unidadesValidas[unidadKey];
 
-    if (!unidadInfo) return res.status(422).json({ details: "Unidad inválida" });
+    if (!unidadInfo) return res.status(422).json({ details: "Unidad inválida las unidades validas son " + Object.keys(unidadesValidas).join(", ") });
 
     // Validaciones básicas
     if (!nombre || nombre.length < 3 || nombre.length > 50) return res.status(422).json({ details: "El nombre del producto debe tener entre 3 y 50 caracteres" });
@@ -72,14 +72,19 @@ export async function createProduct(req, res) {
     // Convertir cantidad a unidad base (gramos o mililitros)
     const cantidadConvertida = cantidad * unidadInfo.factor;
 
+
+    // Calcular precio unitario en la unidad base
+    const precioUnitario = precioNum / cantidadConvertida;
+
+
     // Crear producto en la DB
     const producto = await instanciaMatterRaw.createProduct(
-      nombre,
-      cantidadConvertida,
-      unidadInfo.normalizada,
-      precioNum,
-      user_id,
-      unidadKey // opcional: guardar unidad original para mostrarla en frontend
+     nombre,                 // nombre_producto
+     cantidadConvertida,     // stock
+     unidadInfo.normalizada, // unidad
+     precioNum,              // precio
+     user_id,                // user_id
+     precioUnitario          // precio_unitario
     );
 
     return res.status(201).json(producto);
@@ -93,14 +98,12 @@ export async function createProduct(req, res) {
 // --- MODIFICAR PRODUCTO ---
 export async function modifyProduct(req, res) {
   try {
-    // Obtener usuario autenticado
     const user_id = req.user?.id;
     if (!user_id) return res.status(401).json({ details: "No tienes permisos para realizar esta acción" });
 
     const { id } = req.params;
     const { nombre_producto, stock, unidad, precio } = req.body;
 
-    // Validar campos obligatorios
     if (!id || !nombre_producto || stock == null || !unidad || precio == null) {
       return res.status(422).json({ details: "Los campos nombre_producto, stock, unidad y precio son obligatorios" });
     }
@@ -112,29 +115,29 @@ export async function modifyProduct(req, res) {
     // Normalizar unidad
     const unidadKey = unidad.trim().toLowerCase();
     const unidadInfo = unidadesValidas[unidadKey];
-    if (!unidadInfo) return res.status(422).json({ details: "Unidad inválida" });
-    
+    if (!unidadInfo) return res.status(422).json({ details: "Unidad inválida las unidades validas son " + Object.keys(unidadesValidas).join(", ") });
 
     // Validaciones básicas
     if (!nombre || nombre.length < 3 || nombre.length > 50) return res.status(422).json({ details: "El nombre del producto debe tener entre 3 y 50 caracteres" });
-    if (typeof cantidad !== 'number' || isNaN(cantidad) || cantidad <= 0) return res.status(422).json({ details: "La cantidad debe ser un número mayor a cero" });
+    if (isNaN(cantidad) || cantidad <= 0) return res.status(422).json({ details: "La cantidad debe ser un número mayor a cero" });
     if (isNaN(precioNum) || precioNum <= 0) return res.status(422).json({ details: "El precio debe ser un número mayor a cero" });
 
-    // Comprobar duplicados
-    const existeProducto = await instanciaMatterRaw.existeProductoForUser(nombre, unidadInfo.normalizada, user_id);
+    // Comprobar duplicados ignorando el producto que estamos modificando
+    const existeProducto = await instanciaMatterRaw.existeProductoForUser(nombre, unidadInfo.normalizada, user_id, id);
     if (existeProducto) return res.status(422).json({ details: "Ya existe un producto con ese nombre y unidad" });
 
-    // Convertir cantidad a unidad base (gramos o mililitros)
+    // Convertir cantidad a unidad base
     const cantidadConvertida = cantidad * unidadInfo.factor;
-    // Modificar producto en DB
+    const precioUnitario = precioNum / cantidadConvertida;
+
     const productoModificado = await instanciaMatterRaw.modifyProduct(
-      nombre,
-      cantidadConvertida,
-      unidadInfo.normalizada,
-      precioNum,
-      id,
-      user_id,
-      unidadKey // opcional: guardar unidad original
+      nombre,  // nombre_producto
+      cantidadConvertida, // stock
+      unidadInfo.normalizada,  // unidad
+      precioNum, // precio
+      id, // id del producto a modificar
+      user_id, // user_id
+      precioUnitario  // precio_unitario
     );
 
     return res.status(200).json(productoModificado);
@@ -144,6 +147,7 @@ export async function modifyProduct(req, res) {
     return res.status(500).json({ details: "Error al modificar el producto", error: error.message });
   }
 }
+
 
 export async function deleteProdctUser(req, res) {
   try {
