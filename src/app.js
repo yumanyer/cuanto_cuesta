@@ -61,6 +61,15 @@ async function InitApp(){
         app.get("/matterRaw", requireAuth(["Pastelero","Admin"]), (req,res)=>{
             res.sendFile(path.join(privatePath,"/matterRaw.html"))
         })
+
+        app.get("/ingredientes", requireAuth(["Pastelero","Admin"]), (req,res)=>{
+            res.sendFile(path.join(privatePath,"/ingredientes.html"))
+        }) 
+
+        app.get("/recetas",requireAuth(["Pastelero","Admin"]),(req,res)=>{
+            res.sendFile(path.join(privatePath,"/recetas.html"))
+        })
+
         app.get("/",(req,res)=>{
             res.sendFile(path.join(publicPath,"home.html"))
         })

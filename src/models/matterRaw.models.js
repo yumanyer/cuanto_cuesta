@@ -35,19 +35,24 @@ async existeProductoForUser(nombre_producto, unidad, user_id, ignore_id = null) 
 }
 
     //devolver todos los productos que pertenecen a un usuario específico. 
-async getProductById(user_id){
-        try {
-
-            const query="SELECT * FROM cuesta_tanto.materia_prima WHERE user_id = $1 ORDER BY ID ASC "
-            const values = [ user_id]
-            console.time("getProductByIdUser")
-            const result=await dataBase.query(query,values)
-            console.timeEnd("getProductByIdUser")
-            return result.rows
-        } catch (error) {
-            throw error
-        }
+async getAllProductsForUser(user_id, limit = 5, offset = 0) {
+    try {
+        const query = `
+            SELECT * 
+            FROM cuesta_tanto.materia_prima 
+            WHERE user_id = $1
+            ORDER BY id ASC
+            LIMIT $2 OFFSET $3
+        `;
+        const values = [user_id, limit, offset];
+        const result = await dataBase.query(query, values);
+        return { rows: result.rows };
+    } catch (error) {
+        throw error;
+    }
 }
+
+
 
 //crear nuevo producto en la db
 async createProduct(nombre_producto,stock,unidad,precio,user_id,precio_unitario){

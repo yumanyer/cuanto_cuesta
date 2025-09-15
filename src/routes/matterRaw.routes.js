@@ -1,13 +1,13 @@
 import express from "express";
 import { MatterRaw } from "../models/matterRaw.models.js";
-import { deleteProdctUser, createProduct, modifyProduct,getProductById} from "../controllers/matterRaw.controllers.js";
+import { deleteProdctUser, createProduct, modifyProduct,getAllProductsForUser} from "../controllers/matterRaw.controllers.js";
 import { checkOwnership } from "../middleware/user/checkOwnership.middleware.js";
 import { requireAuth } from "../middleware/auth/requireAuth.middleware.js";
 
 const MatterRawRouter = express.Router();
 
 // Obtener producto SOLO si es del usuario
- MatterRawRouter.get("/get", requireAuth(["Pastelero","Admin"]), getProductById);
+ MatterRawRouter.get("/get", requireAuth(["Pastelero","Admin"]), getAllProductsForUser);
 
 // Crear producto
 MatterRawRouter.post("/create", requireAuth(["Pastelero","Admin"]), createProduct);
