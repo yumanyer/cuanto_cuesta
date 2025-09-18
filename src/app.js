@@ -39,6 +39,7 @@ dataBase.query("SELECT NOW()")
 .then(()=>{
     console.log("Base de datos conectada")
     console.time("Conexión a la base de datos")
+    console.log("NODE_ENV =", process.env.NODE_ENV);
     InitApp()
     console.timeEnd("Conexión a la base de datos")
 })

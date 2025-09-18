@@ -223,13 +223,7 @@ export class Ingredientes {
     return result.rows;
   }
 
-async updateIngrediente(id, user_id, receta_id, materia_prima_id, cantidad_usada, unidad) {
-    
-}
 
-  async deleteIngrediente(id, user_id, receta_id) {
-    // Ajustar stock antes de eliminar
-  }
 }
 
 export const instanciaIngredientes = new Ingredientes();

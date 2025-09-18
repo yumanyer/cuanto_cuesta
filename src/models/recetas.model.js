@@ -31,7 +31,8 @@ export class Recetas{
         try {
             const query=`
             SELECT * FROM cuesta_tanto.recetas
-            WHERE user_id=$1
+            WHERE user_id=$1 
+            ORDER BY ID 
             `
             const values= [user_id]
             console.time("getRecetaUser")
