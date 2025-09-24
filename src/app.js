@@ -6,6 +6,13 @@ import cookieParser from "cookie-parser"
 import { dataBase } from "./config/connectDB.config.js"
 //VARIABLES
 import {config} from "./config/env.config.js"
+//TRIGGERS
+import {TriggerActualizarPrecio} from "./trigger/001_create_trigger_update_precio.js"
+import {TriggerActualizarPrecioIngrediente} from "./trigger/002_trigger_update_precio_ingrediente.js"
+import {TriggerDeleteIngrediente} from "./trigger/003_trigger_delete_ingrediente.js"
+import {TriggerInsertarIngrediente} from "./trigger/004_trigger_insert_ingrediente.js"
+import {TriggerEliminarMateriaPrima} from "./trigger/005_trigger_delete_materia_prima.js"
+
 //RUTAS
 import userRoutes from "./routes/user.routes.js"
 import matterRouter from "./routes/matterRaw.routes.js"
@@ -51,7 +58,11 @@ dataBase.query("SELECT NOW()")
 async function InitApp(){
     try {
 
-       
+        await TriggerActualizarPrecio() //001
+        await TriggerActualizarPrecioIngrediente() //002
+        await TriggerDeleteIngrediente() //003
+        await TriggerInsertarIngrediente() //004
+        await TriggerEliminarMateriaPrima() //005
         
         app.use("/api/users",userRoutes)
         app.use("/api/matterRaw",matterRouter)

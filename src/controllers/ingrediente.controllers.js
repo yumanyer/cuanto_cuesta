@@ -56,3 +56,40 @@ export async function getIngredientesByRecetaId(req, res) {
     }
 }
 
+export async function modifyIngrediente(req, res) {
+  try {
+    const user_id = req.user.id;
+    const { id } = req.params;
+    const { receta_id, materia_prima_id, cantidad_usada, unidad } = req.body;
+
+    if (!id || !receta_id || !materia_prima_id || !cantidad_usada || !unidad) {
+      return res.status(422).json({ message: "Todos los campos son obligatorios" });
+    }
+
+    const ingredienteModificado = await instanciaIngredientes.modifyIngrediente(
+      id, receta_id, materia_prima_id, cantidad_usada, unidad, user_id
+    );
+
+    if (!ingredienteModificado) return res.status(404).json({ message: "Ingrediente no encontrado o sin permisos" });
+
+    return res.status(200).json(ingredienteModificado);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}
+
+// --- Eliminar ingrediente ---
+export async function deleteIngrediente(req, res) {
+  try {
+    const user_id = req.user.id;
+    const { id } = req.params;
+
+    const deletedIngrediente = await instanciaIngredientes.deleteIngrediente(id, user_id);
+
+    if (!deletedIngrediente) return res.status(404).json({ message: "Ingrediente no encontrado o sin permisos" });
+
+    return res.status(200).json({ message: "Ingrediente eliminado correctamente", ingrediente: deletedIngrediente });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}

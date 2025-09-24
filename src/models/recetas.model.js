@@ -78,7 +78,7 @@ export class Recetas{
             id: rows[0].receta_id,
             nombre_receta: rows[0].nombre_receta,
             descripcion: rows[0].descripcion,
-            precio_total: rows[0].precio_total,
+            precio_total: Number(rows[0].precio_total),
             ingredientes: rows
             // Filtrar filas donde nombre_producto no es null y mapear a formato deseado
                 .filter(row => row.nombre_producto !== null)

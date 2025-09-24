@@ -15,18 +15,20 @@ export class Ingredientes {
   // --- Función interna de validación ---
   async _validarStockYUnidad(client, user_id, materia_prima_id, cantidadNormalizada, unidadNormalizada) {
     const { rows: materiaRows } = await client.query(
-      `SELECT stock, unidad FROM cuesta_tanto.materia_prima WHERE id=$1 AND user_id=$2 FOR UPDATE`,
+      `SELECT stock, unidad,nombre_producto,id FROM cuesta_tanto.materia_prima WHERE id=$1 AND user_id=$2 FOR UPDATE`,
       [materia_prima_id, user_id]
     );
     if (materiaRows.length === 0) throw new Error("No tenés permisos sobre esta materia prima");
 
+    const idMateria = materiaRows[0].id;
     const unidadBase = materiaRows[0].unidad;
+    const nombre_producto = materiaRows[0].nombre_producto;
     const compatibles = { "Gramos": ["Gramos", "Kilo"], "Mililitro": ["Mililitro", "Litro"], "Individual": ["Individual"] };
     if (!compatibles[unidadBase]?.includes(unidadNormalizada)) {
-      throw new Error(`Unidad incompatible. La materia prima se cargó como '${unidadBase}'`);
+      throw new Error(`Unidad incompatible. La materia prima ${nombre_producto}  con ID ${idMateria} se cargó como '${unidadBase}'`);
     }
 
-    if (materiaRows[0].stock < cantidadNormalizada) throw new Error(`Stock insuficiente. Disponible: ${materiaRows[0].stock}`);
+    if (materiaRows[0].stock < cantidadNormalizada) throw new Error(`Stock insuficiente de ${nombre_producto}, Disponible: ${materiaRows[0].stock}`);
 
     return materiaRows[0].stock;
   }
@@ -223,7 +225,27 @@ export class Ingredientes {
     return result.rows;
   }
 
+  async modifyIngrediente(id, receta_id, materia_prima_id, cantidad_usada, unidad, user_id) {
+    const query = `
+      UPDATE cuesta_tanto.ingredientes
+      SET receta_id = $1,
+          materia_prima_id = $2,
+          cantidad_usada = $3,
+          unidad = $4
+      WHERE id = $5 AND user_id = $6
+      RETURNING *
+    `;
+    const values = [receta_id, materia_prima_id, cantidad_usada, unidad, id, user_id];
+    const result = await dataBase.query(query, values);
+    return result.rows[0];
+  }
 
+  async deleteIngrediente(id, user_id) {
+    const query = `DELETE FROM cuesta_tanto.ingredientes WHERE id = $1 AND user_id = $2 RETURNING *`;
+    const values = [id, user_id];
+    const result = await dataBase.query(query, values);
+    return result.rows[0];
+  }
 }
 
 export const instanciaIngredientes = new Ingredientes();
