@@ -4,8 +4,8 @@ import { dataBase } from "../../config/connectDB.config.js";
 // Verificar que el usuario autenticado sea dueño de la receta
 export const checkOwnershipReceta = async (req, res, next) => {
   try {
-    const receta_id =  req.params?.id || req.body?.receta_id;
     const user_id = req.user.id;
+    const receta_id =  req.params?.id || req.body?.receta_id;
 
     if (!receta_id) {
       return res.status(422).json({ message: "No se recibió receta_id" });

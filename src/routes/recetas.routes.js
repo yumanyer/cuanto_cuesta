@@ -2,7 +2,7 @@
 import {Router} from "express";
 import {createReceta,getRecetasUser,getRecetaDetail,updateReceta,deleteReceta} from "../controllers/recetas.controllers.js";
 import {requireAuth} from "../middleware/auth/requireAuth.middleware.js"
-import {checkOwnershipReceta} from "../middleware/user/chechExistitReceta.middleware.js"
+import {checkOwnershipReceta} from "../middleware/user/checkOwnershipReceta.middleware.js"
 const RecetasRouter = Router();
 
 // -- crear nueva receta --

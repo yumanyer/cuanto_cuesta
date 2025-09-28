@@ -69,7 +69,7 @@ export async function loginUser(req, res) {
     await setRefreshToken(user.id,refreshToken)
     
 
-    return res.status(200).json({ message: `Bienvenido Sr. ${user.Name}`, userId: user.id, userRole: user.Rol });
+    return res.status(200).json({ message: `Bienvenido Sr. ${user.Name}`, userId: user.id,userEmail:user.Email});
   } catch (error) {
     console.error("Error login:", error);
     return res.status(500).json({ details: "Error al iniciar sesión" });

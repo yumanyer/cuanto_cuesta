@@ -219,7 +219,7 @@ export class Ingredientes {
   }
 
   async getIngrediente(user_id, receta_id) {
-    const query = `SELECT * FROM cuesta_tanto.ingredientes WHERE user_id=$1 AND receta_id=$2`;
+    const query = `SELECT * FROM cuesta_tanto.ingredientes WHERE user_id=$1 AND receta_id=$2 ORDER BY id`;
     const values = [user_id, receta_id];
     const result = await dataBase.query(query, values);
     return result.rows;

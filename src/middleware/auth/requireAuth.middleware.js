@@ -32,6 +32,7 @@ export const requireAuth = (allowRoles = []) => async (req, res, next) => {
 
     const payload = verifyToken(refreshToken, "refresh");
 
+    console.log("Payload:", payload);
     const newAccessToken = generateAccessToken(payload);
     const newRefreshToken = generateRefreshToken(payload);
 

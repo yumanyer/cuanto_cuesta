@@ -91,22 +91,21 @@
     }
 
     // -- eliminar receta --
-    export async function deleteReceta(req,res){
-        try {
-            const id = req.params.id
-            const user_id = req.user.id
-            
-            if (!id) return res.status(400).json({ message: "NO se indico que receta se quiere eliminar" });
-            if (!user_id) return res.status(401).json({ details: "No tienes permisos para realizar esta acción" });
-            
-            //if(!receta) return res.status(404).json({ message: "Receta no encontrada o ya eliminada" });
-            
-    
+export async function deleteReceta(req,res){
+    try {
+        const id = req.params.id
+        const user_id = req.user.id
+        
+        if (!id) return res.status(400).json({ message: "NO se indico que receta se quiere eliminar" });
+        if (!user_id) return res.status(401).json({ details: "No tienes permisos para realizar esta acción" });
+        
+        //if(!receta) return res.status(404).json({ message: "Receta no encontrada o ya eliminada" });
+        
 
-            const receta = await instanciaRecetas.deleteReceta(id)
-            return res.status(200).json({ message: "Receta eliminada correctamente", receta })
-        } catch (error) {
-            console.error("Error al eliminar la receta:", error);
-            return res.status(500).json({ message: "Error al eliminar la receta" });
-        }
+        const receta = await instanciaRecetas.deleteReceta(id)
+        return res.status(200).json({ message: "Receta eliminada correctamente", receta })
+    } catch (error) {
+        console.error("Error al eliminar la receta:", error);
+        return res.status(500).json({ message: "Error al eliminar la receta" });
     }
+}
