@@ -1,4 +1,6 @@
 // Cuando cambias precio_unitario de una materia_prima,
+
+
 // este trigger recalcula el precio_total de las recetas afectadas.
 
 import { dataBase } from "../config/connectDB.config.js";

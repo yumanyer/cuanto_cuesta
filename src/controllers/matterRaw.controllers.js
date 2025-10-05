@@ -24,30 +24,29 @@ const unidadesValidas = {
 };
 
 export async function getAllProductsForUser(req, res) {
-    try {
-        const user_id = req.user.id;
+  try {
+    const user_id = req.user.id;
 
-        // Validación robusta de page y limit
-        let page = parseInt(req.query.page, 10);
-        if (isNaN(page) || page < 1) page = 1;
+    const all = req.query.all === "true"; // true si quieres todos
+    const page = parseInt(req.query.page, 10) || 1; // default 1
+    const limit = parseInt(req.query.limit, 10) || 5; // default 5
+    const offset = (page - 1) * limit;
 
-        let limit = parseInt(req.query.limit, 10);
-        if (isNaN(limit) || limit < 1) limit = 5;
+    const result = all
+      ? await instanciaMatterRaw.getAllProductsForUser(user_id,0,0) // sin limit
+      : await instanciaMatterRaw.getAllProductsForUser(user_id, limit, offset);
 
-        const offset = (page - 1) * limit;
-
-        const result = await instanciaMatterRaw.getAllProductsForUser(user_id, limit, offset);
-
-        return res.status(200).json({
-            message: result.rows.length > 0
-                ? "Estos son los productos que tienes"
-                : "No hay productos para este usuario",
-            producto_encontrado: result.rows,
-            currentPage: page
-        });
-    } catch (error) {
-        return res.status(500).json({ error: error.message });
-    }
+    return res.status(200).json({
+      message: result.rows.length > 0
+        ? "Estos son los productos que tienes"
+        : "No hay productos para este usuario",
+      producto_encontrado: result.rows,
+      currentPage: all ? 1 : page,
+      totalItems: result.rows.length,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 }
 
 

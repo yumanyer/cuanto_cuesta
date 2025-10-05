@@ -8,7 +8,7 @@
             if(!hashedPassword){
             throw new Error("Error generando hash de la contraseña");
             }
-        const query = `INSERT INTO cuesta_Tanto.usuarios  ("Name", "Email", "Password","Rol") VALUES ($1, $2, $3, $4) RETURNING "id", "Name", "Email", `
+        const query = `INSERT INTO cuesta_Tanto.usuarios  ("Name", "Email", "Password","Rol") VALUES ($1, $2, $3, $4) RETURNING "id", "Name", "Email"`
         const values = [Name,Email,hashedPassword,Rol]
         console.time("createUser")
         const resultado = await  dataBase.query(query,values)

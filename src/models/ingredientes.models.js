@@ -110,113 +110,120 @@ export class Ingredientes {
   }
 
   // --- Bulk create / merge ---
-  async bulkCreateIngrediente(user_id, receta_id, ingredientes) {
-    const client = await dataBase.connect();
-    let ingredienteArray = typeof ingredientes === "string" ? JSON.parse(ingredientes) : ingredientes;
+async bulkCreateIngrediente(user_id, receta_id, ingredientes) {
+  const client = await dataBase.connect();
+  let ingredienteArray = typeof ingredientes === "string" ? JSON.parse(ingredientes) : ingredientes;
 
-    try {
-      await client.query("BEGIN");
+  try {
+    await client.query("BEGIN");
 
-      const map = new Map();
-      for (const ing of ingredienteArray) {
-        const result = normalizarUnidad(ing.unidad, ing.cantidad_usada);
-        if (!result) throw new Error(`Unidad no válida para materia prima ${ing.materia_prima_id}. Permitidas: ${getUnidadesValidas().join(", ")}`);
-        let { unidadNormalizada, cantidadNormalizada } = result;
+    const map = new Map();
+    for (const ing of ingredienteArray) {
+      const result = normalizarUnidad(ing.unidad, ing.cantidad_usada);
+      if (!result) throw new Error(`Unidad no válida para materia prima ${ing.materia_prima_id}. Permitidas: ${getUnidadesValidas().join(", ")}`);
+      let { unidadNormalizada, cantidadNormalizada } = result;
 
-        if (cantidadNormalizada <= 0) throw new Error(`Cantidad inválida para ${ing.materia_prima_id}`);
-        if (unidadNormalizada === "Individual" && !Number.isInteger(cantidadNormalizada)) throw new Error(`Individual solo acepta enteros.`);
+      if (cantidadNormalizada <= 0) throw new Error(`Cantidad inválida para ${ing.materia_prima_id}`);
+      if (unidadNormalizada === "Individual" && !Number.isInteger(cantidadNormalizada)) throw new Error(`Individual solo acepta enteros.`);
 
-        // Combinar duplicados dentro del array
-        if (map.has(ing.materia_prima_id)) {
-          map.get(ing.materia_prima_id).cantidad_usada += cantidadNormalizada;
-        } else {
-          map.set(ing.materia_prima_id, { ...ing, unidad: unidadNormalizada, cantidad_usada: cantidadNormalizada });
-        }
+      // Combinar duplicados en el mismo array
+      if (map.has(ing.materia_prima_id)) {
+        map.get(ing.materia_prima_id).cantidad_usada += cantidadNormalizada;
+      } else {
+        map.set(ing.materia_prima_id, { ...ing, unidad: unidadNormalizada, cantidad_usada: cantidadNormalizada });
       }
-
-      const ingredientesMapeados = [...map.values()];
-
-      // Traer existentes
-      const { rows: existentes } = await client.query(
-        `SELECT id, materia_prima_id, cantidad_usada FROM cuesta_tanto.ingredientes WHERE receta_id=$1 AND user_id=$2`,
-        [receta_id, user_id]
-      );
-
-      const actualizados = [];
-      const nuevos = [];
-
-      for (const ing of ingredientesMapeados) {
-        const existe = existentes.find(e => e.materia_prima_id === ing.materia_prima_id);
-
-        // Validación y stock
-        const stockActual = await this._validarStockYUnidad(client, user_id, ing.materia_prima_id, ing.cantidad_usada, ing.unidad);
-
-        let stockARestar = ing.cantidad_usada;
-        if (existe) {
-          stockARestar = ing.cantidad_usada; // diferencia entre cantidad nueva y existente
-          stockARestar = ing.cantidad_usada - existe.cantidad_usada;
-        }
-
-        if (stockActual < stockARestar) throw new Error(`Stock insuficiente para ${ing.materia_prima_id}. Disponible: ${stockActual}`);
-
-        await client.query(
-          `UPDATE cuesta_tanto.materia_prima SET stock=stock-$1 WHERE id=$2`,
-          [stockARestar, ing.materia_prima_id]
-        );
-
-        if (existe) {
-          const newCantidad = existe.cantidad_usada + ing.cantidad_usada;
-          const { rows } = await client.query(
-            `UPDATE cuesta_tanto.ingredientes SET cantidad_usada=$1 WHERE id=$2 RETURNING *`,
-            [newCantidad, existe.id]
-          );
-          actualizados.push(rows[0]);
-        } else {
-          nuevos.push(ing);
-        }
-      }
-
-      // Insertar nuevos ingredientes
-      let insertados = [];
-      if (nuevos.length > 0) {
-        const values = [];
-        const placeholders = [];
-        nuevos.forEach((ing, i) => {
-          const start = i * 5 + 1;
-          placeholders.push(`($${start},$${start+1},$${start+2},$${start+3},$${start+4})`);
-          values.push(user_id, receta_id, ing.materia_prima_id, ing.cantidad_usada, ing.unidad);
-        });
-
-        const { rows } = await client.query(
-          `INSERT INTO cuesta_tanto.ingredientes (user_id, receta_id, materia_prima_id, cantidad_usada, unidad)
-           VALUES ${placeholders.join(", ")} RETURNING *`,
-          values
-        );
-        insertados = rows;
-      }
-
-      // Actualizar precio_total
-      const { rows: precioRows } = await client.query(
-        `SELECT SUM(i.cantidad_usada * mp.precio_unitario) AS precio_total
-         FROM cuesta_tanto.ingredientes i
-         JOIN cuesta_tanto.materia_prima mp ON i.materia_prima_id = mp.id
-         WHERE i.receta_id=$1 AND i.user_id=$2`,
-        [receta_id, user_id]
-      );
-
-      const precio_total = parseFloat(precioRows[0]?.precio_total || 0).toFixed(2);
-      await client.query(`UPDATE cuesta_tanto.recetas SET precio_total=$1 WHERE id=$2 AND user_id=$3`, [precio_total, receta_id, user_id]);
-
-      await client.query("COMMIT");
-      return { ingredientes: [...actualizados, ...insertados], precio_total };
-
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
     }
+
+    const ingredientesMapeados = [...map.values()];
+
+    // Traer existentes en esa receta
+    const { rows: existentes } = await client.query(
+      `SELECT id, materia_prima_id, cantidad_usada 
+       FROM cuesta_tanto.ingredientes 
+       WHERE receta_id=$1 AND user_id=$2`,
+      [receta_id, user_id]
+    );
+
+    const actualizados = [];
+    const nuevos = [];
+
+    for (const ing of ingredientesMapeados) {
+      const existe = existentes.find(e => e.materia_prima_id === ing.materia_prima_id);
+
+      // Validación y stock
+      const stockActual = await this._validarStockYUnidad(
+        client, user_id, ing.materia_prima_id, ing.cantidad_usada, ing.unidad
+      );
+
+      if (stockActual < ing.cantidad_usada) {
+        throw new Error(`Stock insuficiente para ${ing.materia_prima_id}. Disponible: ${stockActual}`);
+      }
+
+      // Siempre descontamos lo nuevo
+      await client.query(
+        `UPDATE cuesta_tanto.materia_prima SET stock=stock-$1 WHERE id=$2`,
+        [ing.cantidad_usada, ing.materia_prima_id]
+      );
+
+      if (existe) {
+        // SUMAR la nueva cantidad a la existente
+        const { rows } = await client.query(
+          `UPDATE cuesta_tanto.ingredientes 
+           SET cantidad_usada = cantidad_usada + $1 
+           WHERE id=$2 RETURNING *`,
+          [ing.cantidad_usada, existe.id]
+        );
+        actualizados.push(rows[0]);
+      } else {
+        nuevos.push(ing);
+      }
+    }
+
+    // Insertar nuevos ingredientes
+    let insertados = [];
+    if (nuevos.length > 0) {
+      const values = [];
+      const placeholders = [];
+      nuevos.forEach((ing, i) => {
+        const start = i * 5 + 1;
+        placeholders.push(`($${start},$${start+1},$${start+2},$${start+3},$${start+4})`);
+        values.push(user_id, receta_id, ing.materia_prima_id, ing.cantidad_usada, ing.unidad);
+      });
+
+      const { rows } = await client.query(
+        `INSERT INTO cuesta_tanto.ingredientes (user_id, receta_id, materia_prima_id, cantidad_usada, unidad)
+         VALUES ${placeholders.join(", ")} RETURNING *`,
+        values
+      );
+      insertados = rows;
+    }
+
+    // Actualizar precio_total
+    const { rows: precioRows } = await client.query(
+      `SELECT SUM(i.cantidad_usada * mp.precio_unitario) AS precio_total
+       FROM cuesta_tanto.ingredientes i
+       JOIN cuesta_tanto.materia_prima mp ON i.materia_prima_id = mp.id
+       WHERE i.receta_id=$1 AND i.user_id=$2`,
+      [receta_id, user_id]
+    );
+
+    const precio_total = parseFloat(precioRows[0]?.precio_total || 0).toFixed(2);
+    await client.query(
+      `UPDATE cuesta_tanto.recetas SET precio_total=$1 WHERE id=$2 AND user_id=$3`,
+      [precio_total, receta_id, user_id]
+    );
+
+    await client.query("COMMIT");
+    return { ingredientes: [...actualizados, ...insertados], precio_total };
+
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
   }
+}
+
 
   async getIngrediente(user_id, receta_id) {
     const query = `SELECT * FROM cuesta_tanto.ingredientes WHERE user_id=$1 AND receta_id=$2 ORDER BY id`;
