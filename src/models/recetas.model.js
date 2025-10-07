@@ -51,6 +51,8 @@ export class Recetas{
         //LEFT JOIN garantizás que la receta aparezca siempre, aunque todavía no tenga nada cargado en ingredientes
         const query = `
             SELECT 
+                i.id as ingrediente_id,
+                i.materia_prima_id,
                 r.id as receta_id,
                 r.nombre_receta,
                 r.descripcion,
@@ -84,6 +86,8 @@ export class Recetas{
                 .filter(row => row.nombre_producto !== null)
             // mapear a formato deseado
                 .map(row => ({
+                    id: row.ingrediente_id,
+                    materia_prima_id: row.materia_prima_id,
                     nombre_producto: row.nombre_producto,
                     unidad: row.unidad_receta,
                     precio: row.precio,
