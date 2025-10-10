@@ -84,11 +84,11 @@
     export async function updateReceta(req,res){
         try {
             const id = req.params.id
-            const { nombre_receta, descripcion } = req.body
+            const { nombre_receta, descripcion ,porciones} = req.body
             if (!id) return res.status(400).json({ message: "NO se indico que receta se quiere actualizar" });
             if (!nombre_receta || !descripcion) return res.status(400).json({ message: "NO se indico que propiedad se quiere actualizar" });
                 
-            const receta = await instanciaRecetas.updateReceta(id,nombre_receta,descripcion)
+            const receta = await instanciaRecetas.updateReceta(id,nombre_receta,descripcion,porciones)
             return res.status(200).json(receta)
         } catch (error) {
             console.error("Error al actualizar la receta:", error);

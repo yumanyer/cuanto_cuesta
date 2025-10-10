@@ -109,15 +109,15 @@ export class Recetas{
     }
 
     
-    async updateReceta(id,nombre_receta,descripcion){
+    async updateReceta(id,nombre_receta,descripcion,porciones){
         try {
             const query=`
             UPDATE cuesta_tanto.recetas
-            set nombre_receta=$1,descripcion=$2
-            where id=$3
+            set nombre_receta=$1,descripcion=$2,porciones=$3
+            where id=$4
             RETURNING *
             `
-            const values=[nombre_receta,descripcion,id]
+            const values = [nombre_receta, descripcion, porciones, id];
             console.time("updateReceta")
             const result=await dataBase.query(query,values)
             console.timeEnd("updateReceta")
