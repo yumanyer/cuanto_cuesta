@@ -7,11 +7,13 @@
     export async function createReceta(req, res) {
         try {
             // Desestructuramos del body
-            const { nombre_receta, descripcion } = req.body;
+            const { nombre_receta, descripcion, porciones } = req.body;
 
             // Limpiar y convertir
             const nombre = nombre_receta?.trim();
             const desc = descripcion?.trim();
+            
+            
 
             // Verificar que el usuario esté autenticado
             const user_id = req.user?.id;
@@ -27,9 +29,13 @@
                 return res.status(422).json({ details: "La descripción de la receta debe tener entre 3 y 500 caracteres" });
             }
 
+            if (isNaN(porciones) || porciones < 0) {
+                return res.status(422).json({ details: "La cantidad de porciones debe ser un número positivo" });
+            }
+
             // Crear receta
             //precio_total se inicializa en 0 y se actualizará al agregar ingredientes
-            const receta = await instanciaRecetas.createReceta(user_id, nombre, desc) ;
+            const receta = await instanciaRecetas.createReceta(user_id, nombre, desc, porciones) ;
 
             // Devolver resultado
             return res.status(201).json(receta);
